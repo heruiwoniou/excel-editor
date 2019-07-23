@@ -6,7 +6,8 @@ import {
   PageVerticalSize,
   PerLoadCountDefault,
   RearLoadCountDefault,
-  PlaceHolderType
+  DirectionType,
+  HeaderHorizontalSize
 } from "./constants";
 import PlaceHolder from "./PlaceHolder";
 import VirtualPagerRow from "./VirtualPagerRow";
@@ -15,6 +16,7 @@ import VerticalHeader from "./HeaderVertical";
 
 const VirtualBox: React.FC = (...rest: any) => {
   // Vertical parameters
+  const verticalHeaderRef = useRef<HTMLDivElement>(null);
   const [maxVerticalIndex, setMaxVerticalIndex] = useState<number>(0);
   const [pageVerticalIndex, updatePageVerticalIndex] = useState<number>(0);
   const [coefficientVertical, updateCoefficientVertical] = useState<number>(1);
@@ -41,6 +43,8 @@ const VirtualBox: React.FC = (...rest: any) => {
   }, []);
 
   // Horizontal parameters
+  const horizontalHeaderRef = useRef<HTMLDivElement>(null);
+  const [horizontalScroll, setHorizontalScroll] = useState<number>(0);
   const [maxHorizontalIndex, setMaxHorizontalIndex] = useState<number>(0);
   const [pageHorizontalIndex, updatePageHorizontalIndex] = useState<number>(0);
   const [coefficientHorizontal, updateCoefficientHorizontal] = useState<number>(
@@ -73,35 +77,51 @@ const VirtualBox: React.FC = (...rest: any) => {
   useEffect(() => {
     let el = ref.current;
 
-    let handler = debounce((e: Event) => {
-      let container: HTMLDivElement;
-      let scrollTop: number;
-      let currentPageHorizontalIndex: number;
-      let scrollLeft: number;
-      let currentPageVerticalIndex: number;
+    let handler = (function() {
+      let scrollTopCache: number;
+      let scrollLeftCache: number;
+      return (e: Event) => {
+        let container: HTMLDivElement;
+        let scrollTop: number;
+        let currentPageHorizontalIndex: number;
+        let scrollLeft: number;
+        let currentPageVerticalIndex: number;
 
-      if (e.target) {
-        container = e.target as HTMLDivElement;
+        if (e.target) {
+          container = e.target as HTMLDivElement;
 
-        //Vertical
-        scrollTop = container.scrollTop;
-        currentPageVerticalIndex = Math.floor(scrollTop / PageVerticalSize);
-        if (currentPageVerticalIndex !== pageVerticalIndex) {
-          container.removeEventListener("scroll", handler);
-          updatePageVerticalIndexHander(currentPageVerticalIndex);
+          //Vertical
+          scrollTop = container.scrollTop;
+          if (scrollTopCache !== scrollTop) {
+            scrollTopCache = scrollTop;
+            if (verticalHeaderRef.current) {
+              verticalHeaderRef.current.scrollTop = scrollTop;
+            }
+          }
+          currentPageVerticalIndex = Math.floor(scrollTop / PageVerticalSize);
+          if (currentPageVerticalIndex !== pageVerticalIndex) {
+            container.removeEventListener("scroll", handler);
+            updatePageVerticalIndexHander(currentPageVerticalIndex);
+          }
+
+          // Horizontal
+          scrollLeft = container.scrollLeft;
+          if (scrollLeftCache !== scrollLeft) {
+            scrollLeftCache = scrollLeft;
+            if (horizontalHeaderRef.current) {
+              horizontalHeaderRef.current.scrollLeft = scrollLeft;
+            }
+          }
+          currentPageHorizontalIndex = Math.floor(
+            scrollLeft / PageHorizontalSize
+          );
+          if (currentPageHorizontalIndex !== pageHorizontalIndex) {
+            container.removeEventListener("scroll", handler);
+            updatePageHorizontalIndexHander(currentPageHorizontalIndex);
+          }
         }
-
-        // Horizontal
-        scrollLeft = container.scrollLeft;
-        currentPageHorizontalIndex = Math.floor(
-          scrollLeft / PageHorizontalSize
-        );
-        if (currentPageHorizontalIndex !== pageHorizontalIndex) {
-          container.removeEventListener("scroll", handler);
-          updatePageHorizontalIndexHander(currentPageHorizontalIndex);
-        }
-      }
-    }, 200);
+      };
+    })();
     el && el.addEventListener("scroll", handler);
 
     return () => {
@@ -141,21 +161,27 @@ const VirtualBox: React.FC = (...rest: any) => {
   };
 
   const VerticalHeaderProps = {
+    headerRef: verticalHeaderRef,
     pageVerticalIndex,
     perLoadVerticalCount,
     rearLoadVerticalCount
   };
 
-  const HorizontalHeaderProps = VirtualPagerRowProps;
+  const HorizontalHeaderProps = {
+    headerRef: horizontalHeaderRef,
+    pageHorizontalIndex,
+    perLoadHorizontalCount,
+    rearLoadHorizontalCount
+  };
 
   return (
     <TableContainer>
-      <HorizontalHeader {...VirtualPagerRowProps} />
+      <HorizontalHeader {...HorizontalHeaderProps} />
       <ContentContainer>
         <VerticalHeader {...VerticalHeaderProps} />
         <VirtualContainer ref={ref} {...rest}>
           <PlaceHolder
-            type={PlaceHolderType.Virtual}
+            type={DirectionType.Virtual}
             size={
               pageVerticalIndex - perLoadVerticalCount > 0
                 ? (pageVerticalIndex - perLoadVerticalCount) * PageVerticalSize
@@ -175,7 +201,6 @@ const VirtualBox: React.FC = (...rest: any) => {
                 pageVerticalIndex - count >= 0 && (
                   <VirtualPagerRow
                     key={`perload-${pageVerticalIndex - count}`}
-                    data-key={`perload-${pageVerticalIndex - count}`}
                     pageVerticalIndex={pageVerticalIndex - count}
                     {...VirtualPagerRowProps}
                   />
@@ -183,8 +208,7 @@ const VirtualBox: React.FC = (...rest: any) => {
               );
             })}
             <VirtualPagerRow
-              key={`${pageVerticalIndex}`}
-              data-key={`${pageVerticalIndex}`}
+              key={`current-${pageVerticalIndex}`}
               pageVerticalIndex={pageVerticalIndex}
               {...VirtualPagerRowProps}
             />
@@ -193,7 +217,6 @@ const VirtualBox: React.FC = (...rest: any) => {
               return (
                 <VirtualPagerRow
                   key={`rearload-${pageVerticalIndex + count}`}
-                  data-key={`rearload-${pageVerticalIndex + count}`}
                   pageVerticalIndex={pageVerticalIndex + count}
                   {...VirtualPagerRowProps}
                 />
@@ -217,21 +240,20 @@ const VirtualBox: React.FC = (...rest: any) => {
 const TableContainer: any = styled.div`
   height: 100vh;
   width: 100vw;
-  table {
-    table-layout: fixed;
-    border-collapse: collapse;
-  }
 `;
 
 const VirtualContainer: any = styled.div`
-  height: 100vh;
-  width: 100vw;
-  background: #efefef;
+  height: 100%;
+  width: 100%;
   overflow: scroll;
   position: relative;
 `;
 
-const ContentContainer: any = styled.div``;
+const ContentContainer: any = styled.div`
+  width: 100%;
+  height: calc(100% - ${HeaderHorizontalSize}px);
+  display: flex;
+`;
 
 const MaxPoint: any = styled.div`
   height: 1px;

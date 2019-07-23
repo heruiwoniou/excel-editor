@@ -1,12 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import VirtualBox from "./VirtualBox";
+import { GlobalStyle } from "./themes/globalStyles";
 
 const App: React.FC = () => {
   return (
-    <AppContainer>
-      <VirtualBox />
-    </AppContainer>
+    <>
+      <GlobalStyle />
+      <AppContainer>
+        <VirtualBox />
+      </AppContainer>
+    </>
   );
 };
 

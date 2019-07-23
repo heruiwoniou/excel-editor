@@ -4,7 +4,7 @@ import styled from "styled-components";
 import {
   PageVerticalSize,
   PageHorizontalSize,
-  PlaceHolderType
+  DirectionType
 } from "./constants";
 import PlaceHolder from "./PlaceHolder";
 import VirtualPagerCell from "./VirtualPagerCell";
@@ -27,7 +27,7 @@ const VirtualPagerRow: FunctionComponent<IVirtualPagerRow> = ({
   return (
     <StyledVirtualPagerRow {...rest}>
       <PlaceHolder
-        type={PlaceHolderType.Horizontal}
+        type={DirectionType.Horizontal}
         size={
           pageHorizontalIndex - perLoadHorizontalCount > 0
             ? (pageHorizontalIndex - perLoadHorizontalCount) * PageHorizontalSize
@@ -48,7 +48,7 @@ const VirtualPagerRow: FunctionComponent<IVirtualPagerRow> = ({
           );
         })}
         <VirtualPagerCell
-          key={`${pageHorizontalIndex}`}
+          key={`current-${pageHorizontalIndex}`}
           pageVerticalIndex={pageVerticalIndex}
           pageHorizontalIndex={pageHorizontalIndex}
         />
