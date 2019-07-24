@@ -14,6 +14,7 @@ import PlaceHolder from "./PlaceHolder";
 import VirtualPagerRow from "./VirtualPagerRow";
 import HorizontalHeader from "./HeaderHorizontal";
 import VerticalHeader from "./HeaderVertical";
+import Selection from "./Selection";
 
 const VirtualBox: React.FC = (...rest: any) => {
   // Vertical parameters
@@ -91,14 +92,6 @@ const VirtualBox: React.FC = (...rest: any) => {
       hel.scrollLeft = horizontalScrollCache;
     }
 
-    console.log("init", verticalScrollCache);
-    console.log(
-      verticalScrollCache,
-      horizontalScrollCache,
-      pageHorizontalIndex,
-      pageVerticalIndex
-    );
-
     let handler = throttle((e: Event) => {
       let container: HTMLDivElement;
       let scrollTop: number;
@@ -117,13 +110,6 @@ const VirtualBox: React.FC = (...rest: any) => {
         currentPageVerticalIndex = Math.floor(scrollTop / PageVerticalSize);
         if (currentPageVerticalIndex !== pageVerticalIndex) {
           container.removeEventListener("scroll", handler);
-          console.log(
-            "update",
-            currentPageVerticalIndex,
-            pageVerticalIndex,
-            verticalScrollCache,
-            scrollTop
-          );
           updatePageVerticalDataHander(currentPageVerticalIndex, scrollTop);
         }
 
@@ -147,9 +133,7 @@ const VirtualBox: React.FC = (...rest: any) => {
     el && el.addEventListener("scroll", handler);
 
     return () => {
-      if (el) {
-        el.removeEventListener("scroll", handler);
-      }
+      el && el.removeEventListener("scroll", handler);
     };
   }, [
     verticalScrollCache,
@@ -212,6 +196,12 @@ const VirtualBox: React.FC = (...rest: any) => {
       <ContentContainer>
         <VerticalHeader {...VerticalHeaderProps} />
         <VirtualContainer ref={ref} {...rest}>
+          <Selection
+            startRowIndex={0}
+            startCellIndex={0}
+            endCellIndex={2}
+            endRowIndex={2}
+          />
           <PlaceHolder
             type={DirectionType.Virtual}
             size={

@@ -1,7 +1,7 @@
-import { createGlobalStyle, css } from "styled-components";
+import { createGlobalStyle } from "styled-components";
 
-const defualtStyle = () => css`
-  html,
+export const GlobalStyle = createGlobalStyle`
+    html,
   body {
     overflow: hidden;
   }
@@ -13,7 +13,4 @@ const defualtStyle = () => css`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-`;
-export const GlobalStyle = createGlobalStyle`
-    ${defualtStyle()}
 `;
