@@ -22,7 +22,7 @@ export function forEach(el: NodeListOf<HTMLElement>, ...args: any) {
   return _forEach.apply(el, args);
 }
 
-export function hasClass(el: HTMLElement, cls: string) {
+export function hasClass(el: Element | null, cls: string) {
   if (!el || !cls) return false;
   if (cls.indexOf(" ") !== -1)
     throw new Error("className should not contain space.");
@@ -33,7 +33,7 @@ export function hasClass(el: HTMLElement, cls: string) {
   }
 }
 
-export function addClass(el: HTMLElement, cls: string) {
+export function addClass(el: Element | null, cls: string) {
   if (!el) return;
   var curClass = el.className;
   var classes = (cls || "").split(" ");
@@ -53,7 +53,7 @@ export function addClass(el: HTMLElement, cls: string) {
   }
 }
 
-export function removeClass(el: HTMLElement, cls: string) {
+export function removeClass(el: Element | null, cls: string) {
   if (!el || !cls) return;
   var classes = cls.split(" ");
   var curClass = " " + el.className + " ";

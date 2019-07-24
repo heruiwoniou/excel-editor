@@ -32,6 +32,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
     <HeaderHorizontalContainer>
       <HeaderCorner
         className={cls(
+          "header-corner",
           selectionStart === 0 || selectionEnd === 0 ? "selection" : ""
         )}
       />

@@ -248,6 +248,13 @@ const VirtualBox: React.FC = (...rest: any) => {
         removeClass(el, "selection")
       );
 
+      let corner = document.querySelector(".header-corner");
+      if (sCellIndex === 0 || eCellIndex === 0) {
+        addClass(corner, "selection");
+      } else {
+        removeClass(corner, "selection");
+      }
+
       forEach(
         document.querySelectorAll(
           new Array(Math.abs(eCellIndex - sCellIndex))
