@@ -17,7 +17,7 @@ import PlaceHolder from "./PlaceHolder";
 import VirtualPagerRow from "./VirtualPagerRow";
 import HorizontalHeader from "./HeaderHorizontal";
 import VerticalHeader from "./HeaderVertical";
-import Selection from "./Selection";
+import Selection, { calcStyle } from "./Selection";
 
 const VirtualBox: React.FC = (...rest: any) => {
   // Selection
@@ -78,6 +78,7 @@ const VirtualBox: React.FC = (...rest: any) => {
   }, []);
 
   const ref = useRef<HTMLDivElement>(null);
+  const selectionRef = useRef<HTMLDivElement>(null);
 
   const VirtualPagerRowProps = {
     pageHorizontalIndex,
@@ -174,6 +175,7 @@ const VirtualBox: React.FC = (...rest: any) => {
 
   useEffect(() => {
     let el = ref.current;
+    let selectionEl = selectionRef.current;
     let sRowIndex: number;
     let sCellIndex: number;
     let eRowIndex: number;
@@ -183,9 +185,13 @@ const VirtualBox: React.FC = (...rest: any) => {
     let mouseDownHandler = (e: MouseEvent) => {
       cacheOnselectstart = document.onselectstart;
       document.onselectstart = () => false;
-      sCellIndex = Math.floor((e.clientX - HeaderVerticalSize) / CellWidth);
-      sRowIndex = Math.floor((e.clientY - HeaderHorizontalSize) / CellHeight);
-      setSelection([sRowIndex, sCellIndex, sRowIndex, sCellIndex]);
+      sCellIndex = eCellIndex = Math.floor(
+        (e.clientX - HeaderVerticalSize) / CellWidth
+      );
+      sRowIndex = eRowIndex = Math.floor(
+        (e.clientY - HeaderHorizontalSize) / CellHeight
+      );
+      setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
       document.addEventListener("mousemove", mouseMoveHandler);
       document.addEventListener("mouseup", mouseUpHandler);
     };
@@ -193,11 +199,23 @@ const VirtualBox: React.FC = (...rest: any) => {
       document.onselectstart = cacheOnselectstart;
       document.removeEventListener("mouseup", mouseUpHandler);
       document.removeEventListener("mousemove", mouseMoveHandler);
+      setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
     };
     let mouseMoveHandler = (e: MouseEvent) => {
       eCellIndex = Math.floor((e.clientX - HeaderVerticalSize) / CellWidth);
       eRowIndex = Math.floor((e.clientY - HeaderHorizontalSize) / CellHeight);
-      setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
+      let { top, left, width, height } = calcStyle({
+        startRowIndex: sRowIndex,
+        endRowIndex: eRowIndex,
+        startCellIndex: sCellIndex,
+        endCellIndex: eCellIndex
+      });
+      if (selectionEl) {
+        selectionEl.style.top = `${top}px`;
+        selectionEl.style.left = `${left}px`;
+        selectionEl.style.width = `${width}px`;
+        selectionEl.style.height = `${height}px`;
+      }
     };
 
     el && el.addEventListener("mousedown", mouseDownHandler);
@@ -285,6 +303,7 @@ const VirtualBox: React.FC = (...rest: any) => {
             })}
           </div>
           <Selection
+            selectionRef={selectionRef}
             startRowIndex={startRowIndex}
             endRowIndex={endRowIndex}
             startCellIndex={startCellIndex}

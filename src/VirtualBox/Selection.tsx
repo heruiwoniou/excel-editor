@@ -9,29 +9,44 @@ interface ISelectionProps {
   endCellIndex: number;
 }
 
-const Selection: FunctionComponent<ISelectionProps> = ({
+interface ISelectionRefProps {
+  selectionRef: React.RefObject<HTMLDivElement>;
+}
+
+export const calcStyle = ({
+  startRowIndex,
+  endRowIndex,
+  startCellIndex,
+  endCellIndex
+}: ISelectionProps) => ({
+  top: startRowIndex * CellHeight,
+  left: startCellIndex * CellWidth,
+  width: (endCellIndex - startCellIndex + 1) * CellWidth,
+  height: (endRowIndex - startRowIndex + 1) * CellHeight
+});
+
+const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
+  selectionRef,
   startRowIndex,
   endRowIndex,
   startCellIndex,
   endCellIndex
 }) => {
-  const isShowTopArea = !!(endCellIndex - startCellIndex);
-  const isShowBottomArea = !!(endRowIndex - startRowIndex);
-  const style = {
-    top: startRowIndex * CellHeight,
-    left: startCellIndex * CellWidth,
-    width: (endCellIndex - startCellIndex + 1) * CellWidth,
-    height: (endRowIndex - startRowIndex + 1) * CellHeight
-  };
+  const style = calcStyle({
+    startRowIndex,
+    endRowIndex,
+    startCellIndex,
+    endCellIndex
+  });
   return (
-    <SelectionContainer style={style}>
+    <SelectionContainer ref={selectionRef} style={style}>
       <SelectionBorder>
         <SelectionInnerBorder />
       </SelectionBorder>
       <SelectionAreaContainer>
         <SelectionInputArea />
-        {isShowTopArea && <SelectionAreaTop />}
-        {isShowBottomArea && <SelectionAreaBottom />}
+        <SelectionAreaTop />
+        <SelectionAreaBottom />
       </SelectionAreaContainer>
     </SelectionContainer>
   );
