@@ -8,14 +8,17 @@ interface IGridVirtualLineProps {
 }
 const GridVirtualLine: FunctionComponent<IGridVirtualLineProps> = ({
   cells,
-	size,
-	sheetRowIndex,
-	sheetCellIndex
+  size,
+  sheetRowIndex,
+  sheetCellIndex
 }) => {
   return (
     <GridVirtualLineContainer>
       {new Array(cells).fill(null).map((value, index) => (
-        <VirtualLineItem size={size} key={`virtual-line-${sheetRowIndex}-${sheetCellIndex}-${index}`} />
+        <VirtualLineItem
+          size={size}
+          key={`virtual-line-${sheetRowIndex}-${sheetCellIndex}-${index}`}
+        />
       ))}
     </GridVirtualLineContainer>
   );
@@ -27,8 +30,8 @@ const GridVirtualLineContainer: any = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-	right: 0;
-	bottom: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: row;
 `;

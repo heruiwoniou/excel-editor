@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import ReactDom from "react-dom";
-import { throttle } from "lodash-es";
+import { throttle } from "lodash";
 import styled from "styled-components";
 import {
   PageHorizontalSize,
@@ -19,10 +19,15 @@ import HorizontalHeader from "./HeaderHorizontal";
 import VerticalHeader from "./HeaderVertical";
 import Selection, { calcStyle } from "./Selection";
 import { addClass, removeClass, forEach } from "../common/utils";
+import useStore, { DataProvider, ActionType } from "./store";
 
 const VirtualBox: React.FC = (...rest: any) => {
+  const [data, dispatch] = useStore();
+  console.log(data);
+
   // Selection
-  let [selection, setSelection] = useState<number[]>([-1, -1, -1, -1]);
+  const [selection, setSelection] = useState<number[]>([-1, -1, -1, -1]);
+  const [isInputMode, setInputMode] = useState<boolean>(false);
 
   // Vertical parameters
   const verticalHeaderRef = useRef<HTMLDivElement>(null);
@@ -107,6 +112,20 @@ const VirtualBox: React.FC = (...rest: any) => {
     selectionEnd: endCellIndex
   };
 
+  const exitInputMode = useCallback(
+    (value: string, rowIndex: number, cellIndex: number) => {
+      setInputMode(false);
+      dispatch({
+        type: ActionType.Update,
+        payload: {
+          key: `${cellIndex}:${rowIndex}`,
+          value
+        }
+      });
+    },
+    [setInputMode, dispatch]
+  );
+
   useEffect(() => {
     let el = ref.current;
     let vel = verticalHeaderRef.current;
@@ -188,6 +207,7 @@ const VirtualBox: React.FC = (...rest: any) => {
     let isHReverse: boolean;
     let isVReverse: boolean;
     let cacheOnselectstart: any;
+    let checkInputMode = () => !!document.querySelector(".edit-mode-input");
 
     let mouseDownHandler = (e: MouseEvent) => {
       let scrollTop = el ? el.scrollTop : 0;
@@ -208,6 +228,7 @@ const VirtualBox: React.FC = (...rest: any) => {
       document.addEventListener("mouseup", mouseUpHandler);
     };
     let mouseUpHandler = (e: MouseEvent) => {
+      if (checkInputMode()) return;
       document.onselectstart = cacheOnselectstart;
       document.removeEventListener("mouseup", mouseUpHandler);
       document.removeEventListener("mousemove", mouseMoveHandler);
@@ -219,6 +240,7 @@ const VirtualBox: React.FC = (...rest: any) => {
       ]);
     };
     let mouseMoveHandler = (e: MouseEvent) => {
+      if (checkInputMode()) return;
       let scrollTop = el ? el.scrollTop : 0;
       let scrollLeft = el ? el.scrollLeft : 0;
       eCellIndex = Math.floor(
@@ -300,6 +322,16 @@ const VirtualBox: React.FC = (...rest: any) => {
   }, []);
 
   useEffect(() => {
+    let el = ref.current;
+
+    let dblClickHandler = (e: MouseEvent) => setInputMode(true);
+    el && el.addEventListener("dblclick", dblClickHandler);
+    return () => {
+      el && el.removeEventListener("dblclick", dblClickHandler);
+    };
+  }, []);
+
+  useEffect(() => {
     let handler = throttle(() => {
       let el = ref.current;
       if (el) {
@@ -326,67 +358,76 @@ const VirtualBox: React.FC = (...rest: any) => {
   }, [updateLoadHorizontalCount, updateLoadVerticalCount]);
 
   return (
-    <TableContainer>
-      <HorizontalHeader {...HorizontalHeaderProps} />
-      <ContentContainer>
-        <VerticalHeader {...VerticalHeaderProps} />
-        <VirtualContainer ref={ref} {...rest}>
-          <PlaceHolder
-            type={DirectionType.Virtual}
-            size={
-              pageVerticalIndex - perLoadVerticalCount > 0
-                ? (pageVerticalIndex - perLoadVerticalCount) * PageVerticalSize
-                : 0
-            }
-          />
-          <div
-            style={{
-              width:
-                (pageHorizontalIndex + rearLoadHorizontalCount + 1) *
-                PageHorizontalSize
-            }}
-          >
-            {new Array(perLoadVerticalCount).fill(null).map((value, index) => {
-              let count = perLoadVerticalCount - index;
-              return (
-                pageVerticalIndex - count >= 0 && (
-                  <VirtualPagerRow
-                    key={`perload-${pageVerticalIndex - count}`}
-                    data-key={`perload-${pageVerticalIndex - count}`}
-                    pageVerticalIndex={pageVerticalIndex - count}
-                    {...VirtualPagerRowProps}
-                  />
-                )
-              );
-            })}
-            <VirtualPagerRow
-              key={`current-${pageVerticalIndex}`}
-              data-key={`current-${pageVerticalIndex}`}
-              pageVerticalIndex={pageVerticalIndex}
-              {...VirtualPagerRowProps}
+    <DataProvider>
+      <TableContainer>
+        <HorizontalHeader {...HorizontalHeaderProps} />
+        <ContentContainer>
+          <VerticalHeader {...VerticalHeaderProps} />
+          <VirtualContainer ref={ref} {...rest}>
+            <PlaceHolder
+              type={DirectionType.Virtual}
+              size={
+                pageVerticalIndex - perLoadVerticalCount > 0
+                  ? (pageVerticalIndex - perLoadVerticalCount) *
+                    PageVerticalSize
+                  : 0
+              }
             />
-            {new Array(rearLoadVerticalCount).fill(null).map((value, index) => {
-              let count = index + 1;
-              return (
-                <VirtualPagerRow
-                  key={`rearload-${pageVerticalIndex + count}`}
-                  data-key={`rearload-${pageVerticalIndex + count}`}
-                  pageVerticalIndex={pageVerticalIndex + count}
-                  {...VirtualPagerRowProps}
-                />
-              );
-            })}
-          </div>
-          <Selection
-            selectionRef={selectionRef}
-            startRowIndex={startRowIndex}
-            endRowIndex={endRowIndex}
-            startCellIndex={startCellIndex}
-            endCellIndex={endCellIndex}
-          />
-        </VirtualContainer>
-      </ContentContainer>
-    </TableContainer>
+            <div
+              style={{
+                width:
+                  (pageHorizontalIndex + rearLoadHorizontalCount + 1) *
+                  PageHorizontalSize
+              }}
+            >
+              {new Array(perLoadVerticalCount)
+                .fill(null)
+                .map((value, index) => {
+                  let count = perLoadVerticalCount - index;
+                  return (
+                    pageVerticalIndex - count >= 0 && (
+                      <VirtualPagerRow
+                        key={`perload-${pageVerticalIndex - count}`}
+                        data-key={`perload-${pageVerticalIndex - count}`}
+                        pageVerticalIndex={pageVerticalIndex - count}
+                        {...VirtualPagerRowProps}
+                      />
+                    )
+                  );
+                })}
+              <VirtualPagerRow
+                key={`current-${pageVerticalIndex}`}
+                data-key={`current-${pageVerticalIndex}`}
+                pageVerticalIndex={pageVerticalIndex}
+                {...VirtualPagerRowProps}
+              />
+              {new Array(rearLoadVerticalCount)
+                .fill(null)
+                .map((value, index) => {
+                  let count = index + 1;
+                  return (
+                    <VirtualPagerRow
+                      key={`rearload-${pageVerticalIndex + count}`}
+                      data-key={`rearload-${pageVerticalIndex + count}`}
+                      pageVerticalIndex={pageVerticalIndex + count}
+                      {...VirtualPagerRowProps}
+                    />
+                  );
+                })}
+            </div>
+            <Selection
+              selectionRef={selectionRef}
+              exitInputMode={exitInputMode}
+              isInputMode={isInputMode}
+              startRowIndex={startRowIndex}
+              endRowIndex={endRowIndex}
+              startCellIndex={startCellIndex}
+              endCellIndex={endCellIndex}
+            />
+          </VirtualContainer>
+        </ContentContainer>
+      </TableContainer>
+    </DataProvider>
   );
 };
 const TableContainer: any = styled.div`

@@ -1,4 +1,9 @@
-import React, { FunctionComponent } from "react";
+import React, {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useRef
+} from "react";
 import styled, { css } from "styled-components";
 import { CellWidth, CellHeight } from "./constants";
 
@@ -11,6 +16,8 @@ interface ISelectionProps {
 
 interface ISelectionRefProps {
   selectionRef: React.RefObject<HTMLDivElement>;
+  isInputMode: boolean;
+  exitInputMode: (value: string, rowIndex: number, cellIndex: number) => void;
 }
 
 export const calcStyle = ({
@@ -19,7 +26,7 @@ export const calcStyle = ({
   startCellIndex,
   endCellIndex
 }: ISelectionProps) => ({
-  display: startRowIndex === -1 ? "none": "block",
+  display: startRowIndex === -1 ? "none" : "block",
   top: startRowIndex * CellHeight,
   left: startCellIndex * CellWidth,
   width: (Math.abs(endCellIndex - startCellIndex) + 1) * CellWidth,
@@ -28,29 +35,53 @@ export const calcStyle = ({
 
 const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
   selectionRef,
+  isInputMode,
+  exitInputMode,
   startRowIndex,
   endRowIndex,
   startCellIndex,
   endCellIndex
 }) => {
+  const ref = useRef<HTMLInputElement>(null);
+
   const style = calcStyle({
     startRowIndex,
     endRowIndex,
     startCellIndex,
     endCellIndex
   });
+  const handleBlur = useCallback(
+    (e: FocusEvent) => {
+      let input = e.target as HTMLInputElement;
+      exitInputMode(input.value, startRowIndex, startCellIndex);
+    },
+    [startRowIndex, startCellIndex, exitInputMode]
+  );
+
+  useEffect(() => {
+    if (isInputMode && ref.current) {
+      ref.current.focus();
+    }
+  }, [isInputMode]);
+
   return (
     <>
-    <SelectionContainer ref={selectionRef} style={style}>
-      <SelectionBorder>
-        <SelectionInnerBorder />
-      </SelectionBorder>
-      <SelectionAreaContainer>
-        <SelectionInputArea />
+      <SelectionContainer ref={selectionRef} style={style}>
+        <SelectionBorder>
+          <SelectionInnerBorder />
+        </SelectionBorder>
+        <SelectionInputArea>
+          {isInputMode && (
+            <StyledInput
+              className="edit-mode-input"
+              ref={ref}
+              onBlur={handleBlur}
+            />
+          )}
+        </SelectionInputArea>
         <SelectionAreaTop />
         <SelectionAreaBottom />
-      </SelectionAreaContainer>
-    </SelectionContainer>
+      </SelectionContainer>
     </>
   );
 };
@@ -64,12 +95,7 @@ const SelectionBorder: any = styled.div`
   right: -1px;
   bottom: -1px;
   border: 2px solid #217346;
-  z-index: 1;
-  pointer-events: none;
 `;
-
-const SelectionLeftSiderBorder: any = styled.div``;
-const SelectionTopSiderBorder: any = styled.div``;
 
 const SelectionInnerBorder: any = styled.div`
   border: 1px solid #fff;
@@ -78,7 +104,6 @@ const SelectionInnerBorder: any = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  pointer-events: none;
 `;
 
 const commonStyle = css`
@@ -88,10 +113,24 @@ const commonStyle = css`
   opacity: 0.24;
 `;
 
-const SelectionAreaContainer: any = styled.div``;
 const SelectionInputArea: any = styled.div`
   height: ${CellHeight}px;
   width: ${CellWidth}px;
+  position: absolute;
+  left: 0;
+  top: 0;
+`;
+const StyledInput: any = styled.input.attrs(props => ({
+  type: "text"
+}))`
+  border: 0px;
+  background: transparent;
+  height: 100%;
+  width: calc(100% - 4px);
+  margin: 0;
+  line-height: ${CellHeight}px;
+  padding: 0 2px;
+  outline: none;
 `;
 const SelectionAreaTop: any = styled.div`
   ${commonStyle}
@@ -108,5 +147,4 @@ const SelectionAreaBottom: any = styled.div`
 
 const SelectionContainer: any = styled.div`
   position: absolute;
-  pointer-events: none;
 `;

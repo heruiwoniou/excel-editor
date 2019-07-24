@@ -30,7 +30,8 @@ const VirtualPagerRow: FunctionComponent<IVirtualPagerRow> = ({
         type={DirectionType.Horizontal}
         size={
           pageHorizontalIndex - perLoadHorizontalCount > 0
-            ? (pageHorizontalIndex - perLoadHorizontalCount) * PageHorizontalSize
+            ? (pageHorizontalIndex - perLoadHorizontalCount) *
+              PageHorizontalSize
             : 0
         }
       />
@@ -70,7 +71,7 @@ const VirtualPagerRow: FunctionComponent<IVirtualPagerRow> = ({
 export default VirtualPagerRow;
 
 const StyledVirtualPagerRow: any = styled.div`
-	height: ${PageVerticalSize}px;
-	width: 100%;
-	display: flex;
+  height: ${PageVerticalSize}px;
+  width: 100%;
+  display: flex;
 `;

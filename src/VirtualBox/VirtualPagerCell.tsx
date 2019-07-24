@@ -11,6 +11,7 @@ import {
 } from "./constants";
 import GridHorizontalLine from "./GridHorizontalLine";
 import GridVirtualLine from "./GridVirtualLine";
+import GridValues from "./GridValues";
 
 interface IVirtualPagerCell {
   pageHorizontalIndex: number;
@@ -34,6 +35,10 @@ const VirtualPagerCell: FunctionComponent<IVirtualPagerCell> = ({
         sheetCellIndex={pageHorizontalIndex}
         cells={SheetCellsCount}
         size={CellWidth}
+      />
+      <GridValues
+        pageRowIndex={pageVerticalIndex}
+        pageCellIndex={pageHorizontalIndex}
       />
     </StyledVirtualPagerCell>
   );

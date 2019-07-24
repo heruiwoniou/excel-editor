@@ -12,10 +12,15 @@ const PlaceHolder: FunctionComponent<IPlaceHolder> = ({
   size,
   ...rest
 }) => {
-  return <StyledPlaceHolder {...rest} style={{
-    width: type === DirectionType.Virtual ? 1 : size,
-    height: type === DirectionType.Virtual ? size : 1
-  }}/>;
+  return (
+    <StyledPlaceHolder
+      {...rest}
+      style={{
+        width: type === DirectionType.Virtual ? 1 : size,
+        height: type === DirectionType.Virtual ? size : 1
+      }}
+    />
+  );
 };
 
 export default PlaceHolder;

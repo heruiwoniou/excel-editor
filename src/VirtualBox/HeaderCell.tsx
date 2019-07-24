@@ -46,9 +46,9 @@ const StyledHeaderCell: any = styled.div<IStyledHeaderCellProps>`
   &.selection {
     color: #217346;
     font-weight: bold;
-    background: #d3f0e0;
+    background: #dad8d6;
     &:before {
-      background: #cfcfcf;
+      background: #bfbfbf;
     }
     &:after {
       content: "";
@@ -73,9 +73,9 @@ const StyledHeaderCell: any = styled.div<IStyledHeaderCellProps>`
       : css`
           width: ${CellWidth}px;
           &:before {
-            top: 10%;
+            top: 0;
             right: 0;
-            height: 80%;
+            height: 100%;
             width: 1px;
           }
           &.selection:after {
