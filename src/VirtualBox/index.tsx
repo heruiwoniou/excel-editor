@@ -8,6 +8,9 @@ import {
   PerLoadCountDefault,
   RearLoadCountDefault,
   DirectionType,
+  CellWidth,
+  CellHeight,
+  HeaderVerticalSize,
   HeaderHorizontalSize
 } from "./constants";
 import PlaceHolder from "./PlaceHolder";
@@ -17,6 +20,9 @@ import VerticalHeader from "./HeaderVertical";
 import Selection from "./Selection";
 
 const VirtualBox: React.FC = (...rest: any) => {
+  // Selection
+  let [selection, setSelection] = useState<number[]>([-1, -1, -1, -1]);
+
   // Vertical parameters
   const verticalHeaderRef = useRef<HTMLDivElement>(null);
   const [verticalScrollCache, setVerticalScrollCache] = useState<number>(0);
@@ -73,6 +79,8 @@ const VirtualBox: React.FC = (...rest: any) => {
 
   const ref = useRef<HTMLDivElement>(null);
 
+  const [startRowIndex, startCellIndex, endRowIndex, endCellIndex] = selection;
+
   useEffect(() => {
     let el = ref.current;
     let vel = verticalHeaderRef.current;
@@ -92,7 +100,7 @@ const VirtualBox: React.FC = (...rest: any) => {
       hel.scrollLeft = horizontalScrollCache;
     }
 
-    let handler = throttle((e: Event) => {
+    let handler = (e: Event) => {
       let container: HTMLDivElement;
       let scrollTop: number;
       let currentPageHorizontalIndex: number;
@@ -128,7 +136,7 @@ const VirtualBox: React.FC = (...rest: any) => {
           );
         }
       }
-    }, 200);
+    };
 
     el && el.addEventListener("scroll", handler);
 
@@ -143,6 +151,44 @@ const VirtualBox: React.FC = (...rest: any) => {
     updatePageHorizontalDataHander,
     updatePageVerticalDataHander
   ]);
+
+  useEffect(() => {
+    let el = ref.current;
+    let sRowIndex: number;
+    let sCellIndex: number;
+    let eRowIndex: number;
+    let eCellIndex: number;
+    let cacheOnselectstart: any;
+
+    let mouseDownHandler = (e: MouseEvent) => {
+      cacheOnselectstart = document.onselectstart;
+      document.onselectstart = () => false;
+      sCellIndex = Math.floor((e.clientX - HeaderVerticalSize) / CellWidth);
+      sRowIndex = Math.floor(
+        (e.clientY - HeaderHorizontalSize) / CellHeight
+      );
+      setSelection([sRowIndex, sCellIndex, sRowIndex, sCellIndex]);
+      document.addEventListener("mousemove", mouseMoveHandler);
+      document.addEventListener("mouseup", mouseUpHandler);
+    };
+    let mouseUpHandler = (e: MouseEvent) => {
+      document.onselectstart = cacheOnselectstart;
+      document.removeEventListener("mouseup", mouseUpHandler);
+      document.removeEventListener("mousemove", mouseMoveHandler);
+    };
+    let mouseMoveHandler = (e: MouseEvent) => {
+      eCellIndex = Math.floor((e.clientX - HeaderVerticalSize) / CellWidth);
+      eRowIndex = Math.floor(
+        (e.clientY - HeaderHorizontalSize) / CellHeight
+      );
+      setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
+    };
+
+    el && el.addEventListener("mousedown", mouseDownHandler);
+    return () => {
+      el && el.removeEventListener("mousedown", mouseDownHandler);
+    };
+  });
 
   useEffect(() => {
     let handler = throttle(() => {
@@ -196,12 +242,6 @@ const VirtualBox: React.FC = (...rest: any) => {
       <ContentContainer>
         <VerticalHeader {...VerticalHeaderProps} />
         <VirtualContainer ref={ref} {...rest}>
-          <Selection
-            startRowIndex={0}
-            startCellIndex={0}
-            endCellIndex={2}
-            endRowIndex={2}
-          />
           <PlaceHolder
             type={DirectionType.Virtual}
             size={
@@ -248,6 +288,12 @@ const VirtualBox: React.FC = (...rest: any) => {
               );
             })}
           </div>
+          <Selection
+            startRowIndex={startRowIndex}
+            endRowIndex={endRowIndex}
+            startCellIndex={startCellIndex}
+            endCellIndex={endCellIndex}
+          />
         </VirtualContainer>
       </ContentContainer>
     </TableContainer>
@@ -269,13 +315,6 @@ const ContentContainer: any = styled.div`
   width: 100%;
   height: calc(100% - ${HeaderHorizontalSize}px);
   display: flex;
-`;
-
-const MaxPoint: any = styled.div`
-  height: 1px;
-  width: 1px;
-  position: absolute;
-  visibility: hidden;
 `;
 
 export default VirtualBox;

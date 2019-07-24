@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useRef } from "react";
+import React, { FunctionComponent } from "react";
 import styled from "styled-components";
 import {
   HeaderVerticalSize,
