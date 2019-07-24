@@ -79,6 +79,26 @@ const VirtualBox: React.FC = (...rest: any) => {
 
   const ref = useRef<HTMLDivElement>(null);
 
+  const VirtualPagerRowProps = {
+    pageHorizontalIndex,
+    perLoadHorizontalCount,
+    rearLoadHorizontalCount
+  };
+
+  const VerticalHeaderProps = {
+    headerRef: verticalHeaderRef,
+    pageVerticalIndex,
+    perLoadVerticalCount,
+    rearLoadVerticalCount
+  };
+
+  const HorizontalHeaderProps = {
+    headerRef: horizontalHeaderRef,
+    pageHorizontalIndex,
+    perLoadHorizontalCount,
+    rearLoadHorizontalCount
+  };
+
   const [startRowIndex, startCellIndex, endRowIndex, endCellIndex] = selection;
 
   useEffect(() => {
@@ -164,9 +184,7 @@ const VirtualBox: React.FC = (...rest: any) => {
       cacheOnselectstart = document.onselectstart;
       document.onselectstart = () => false;
       sCellIndex = Math.floor((e.clientX - HeaderVerticalSize) / CellWidth);
-      sRowIndex = Math.floor(
-        (e.clientY - HeaderHorizontalSize) / CellHeight
-      );
+      sRowIndex = Math.floor((e.clientY - HeaderHorizontalSize) / CellHeight);
       setSelection([sRowIndex, sCellIndex, sRowIndex, sCellIndex]);
       document.addEventListener("mousemove", mouseMoveHandler);
       document.addEventListener("mouseup", mouseUpHandler);
@@ -178,9 +196,7 @@ const VirtualBox: React.FC = (...rest: any) => {
     };
     let mouseMoveHandler = (e: MouseEvent) => {
       eCellIndex = Math.floor((e.clientX - HeaderVerticalSize) / CellWidth);
-      eRowIndex = Math.floor(
-        (e.clientY - HeaderHorizontalSize) / CellHeight
-      );
+      eRowIndex = Math.floor((e.clientY - HeaderHorizontalSize) / CellHeight);
       setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
     };
 
@@ -188,7 +204,7 @@ const VirtualBox: React.FC = (...rest: any) => {
     return () => {
       el && el.removeEventListener("mousedown", mouseDownHandler);
     };
-  });
+  }, []);
 
   useEffect(() => {
     let handler = throttle(() => {
@@ -215,26 +231,6 @@ const VirtualBox: React.FC = (...rest: any) => {
       window.removeEventListener("resize", handler);
     };
   }, [updateLoadHorizontalCount, updateLoadVerticalCount]);
-
-  const VirtualPagerRowProps = {
-    pageHorizontalIndex,
-    perLoadHorizontalCount,
-    rearLoadHorizontalCount
-  };
-
-  const VerticalHeaderProps = {
-    headerRef: verticalHeaderRef,
-    pageVerticalIndex,
-    perLoadVerticalCount,
-    rearLoadVerticalCount
-  };
-
-  const HorizontalHeaderProps = {
-    headerRef: horizontalHeaderRef,
-    pageHorizontalIndex,
-    perLoadHorizontalCount,
-    rearLoadHorizontalCount
-  };
 
   return (
     <TableContainer>
