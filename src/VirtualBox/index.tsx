@@ -18,6 +18,7 @@ import VirtualPagerRow from "./VirtualPagerRow";
 import HorizontalHeader from "./HeaderHorizontal";
 import VerticalHeader from "./HeaderVertical";
 import Selection, { calcStyle } from "./Selection";
+import { addClass, removeClass, forEach } from "../common/utils";
 
 const VirtualBox: React.FC = (...rest: any) => {
   // Selection
@@ -86,21 +87,25 @@ const VirtualBox: React.FC = (...rest: any) => {
     rearLoadHorizontalCount
   };
 
+  const [startRowIndex, startCellIndex, endRowIndex, endCellIndex] = selection;
+
   const VerticalHeaderProps = {
     headerRef: verticalHeaderRef,
     pageVerticalIndex,
     perLoadVerticalCount,
-    rearLoadVerticalCount
+    rearLoadVerticalCount,
+    selectionStart: startRowIndex,
+    selectionEnd: endRowIndex
   };
 
   const HorizontalHeaderProps = {
     headerRef: horizontalHeaderRef,
     pageHorizontalIndex,
     perLoadHorizontalCount,
-    rearLoadHorizontalCount
+    rearLoadHorizontalCount,
+    selectionStart: startCellIndex,
+    selectionEnd: endCellIndex
   };
-
-  const [startRowIndex, startCellIndex, endRowIndex, endCellIndex] = selection;
 
   useEffect(() => {
     let el = ref.current;
@@ -180,18 +185,25 @@ const VirtualBox: React.FC = (...rest: any) => {
     let sCellIndex: number;
     let eRowIndex: number;
     let eCellIndex: number;
+    let isHReverse: boolean;
+    let isVReverse: boolean;
     let cacheOnselectstart: any;
 
     let mouseDownHandler = (e: MouseEvent) => {
+      let scrollTop = el ? el.scrollTop : 0;
+      let scrollLeft = el ? el.scrollLeft : 0;
       cacheOnselectstart = document.onselectstart;
       document.onselectstart = () => false;
+
       sCellIndex = eCellIndex = Math.floor(
-        (e.clientX - HeaderVerticalSize) / CellWidth
+        (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
       );
       sRowIndex = eRowIndex = Math.floor(
-        (e.clientY - HeaderHorizontalSize) / CellHeight
+        (scrollTop + e.clientY - HeaderHorizontalSize) / CellHeight
       );
       setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
+      document.removeEventListener("mouseup", mouseUpHandler);
+      document.removeEventListener("mousemove", mouseMoveHandler);
       document.addEventListener("mousemove", mouseMoveHandler);
       document.addEventListener("mouseup", mouseUpHandler);
     };
@@ -199,23 +211,79 @@ const VirtualBox: React.FC = (...rest: any) => {
       document.onselectstart = cacheOnselectstart;
       document.removeEventListener("mouseup", mouseUpHandler);
       document.removeEventListener("mousemove", mouseMoveHandler);
-      setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
+      setSelection([
+        isVReverse ? eRowIndex : sRowIndex,
+        isHReverse ? eCellIndex : sCellIndex,
+        isVReverse ? sRowIndex : eRowIndex,
+        isHReverse ? sCellIndex : eCellIndex
+      ]);
     };
     let mouseMoveHandler = (e: MouseEvent) => {
-      eCellIndex = Math.floor((e.clientX - HeaderVerticalSize) / CellWidth);
-      eRowIndex = Math.floor((e.clientY - HeaderHorizontalSize) / CellHeight);
+      let scrollTop = el ? el.scrollTop : 0;
+      let scrollLeft = el ? el.scrollLeft : 0;
+      eCellIndex = Math.floor(
+        (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
+      );
+      eRowIndex = Math.floor(
+        (scrollTop + e.clientY - HeaderHorizontalSize) / CellHeight
+      );
+      isHReverse = eCellIndex < sCellIndex;
+      isVReverse = eRowIndex < sRowIndex;
+
       let { top, left, width, height } = calcStyle({
-        startRowIndex: sRowIndex,
-        endRowIndex: eRowIndex,
-        startCellIndex: sCellIndex,
-        endCellIndex: eCellIndex
+        startRowIndex: isVReverse ? eRowIndex : sRowIndex,
+        endRowIndex: isVReverse ? sRowIndex : eRowIndex,
+        startCellIndex: isHReverse ? eCellIndex : sCellIndex,
+        endCellIndex: isHReverse ? sCellIndex : eCellIndex
       });
+
       if (selectionEl) {
         selectionEl.style.top = `${top}px`;
         selectionEl.style.left = `${left}px`;
         selectionEl.style.width = `${width}px`;
         selectionEl.style.height = `${height}px`;
       }
+
+      forEach(document.querySelectorAll(".selection"), (el: HTMLElement) =>
+        removeClass(el, "selection")
+      );
+
+      forEach(
+        document.querySelectorAll(
+          new Array(Math.abs(eCellIndex - sCellIndex))
+            .fill(null)
+            .reduce(
+              (p, c, i) =>
+                (p += `, .horizontal-header-cell-${(isHReverse
+                  ? eCellIndex
+                  : sCellIndex) +
+                  i +
+                  2}`),
+              `.horizontal-header-cell-${(isHReverse
+                ? eCellIndex
+                : sCellIndex) + 1}`
+            )
+        ),
+        (el: HTMLElement) => addClass(el, "selection")
+      );
+
+      forEach(
+        document.querySelectorAll(
+          new Array(Math.abs(eRowIndex - sRowIndex))
+            .fill(null)
+            .reduce(
+              (p, c, i) =>
+                (p += `, .vertical-header-cell-${(isVReverse
+                  ? eRowIndex
+                  : sRowIndex) +
+                  i +
+                  2}`),
+              `.vertical-header-cell-${(isVReverse ? eRowIndex : sRowIndex) +
+                1}`
+            )
+        ),
+        (el: HTMLElement) => addClass(el, "selection")
+      );
     };
 
     el && el.addEventListener("mousedown", mouseDownHandler);

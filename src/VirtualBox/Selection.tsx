@@ -19,10 +19,11 @@ export const calcStyle = ({
   startCellIndex,
   endCellIndex
 }: ISelectionProps) => ({
+  display: startRowIndex === -1 ? "none": "block",
   top: startRowIndex * CellHeight,
   left: startCellIndex * CellWidth,
-  width: (endCellIndex - startCellIndex + 1) * CellWidth,
-  height: (endRowIndex - startRowIndex + 1) * CellHeight
+  width: (Math.abs(endCellIndex - startCellIndex) + 1) * CellWidth,
+  height: (Math.abs(endRowIndex - startRowIndex) + 1) * CellHeight
 });
 
 const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
@@ -39,6 +40,7 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
     endCellIndex
   });
   return (
+    <>
     <SelectionContainer ref={selectionRef} style={style}>
       <SelectionBorder>
         <SelectionInnerBorder />
@@ -49,6 +51,7 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
         <SelectionAreaBottom />
       </SelectionAreaContainer>
     </SelectionContainer>
+    </>
   );
 };
 
@@ -64,6 +67,10 @@ const SelectionBorder: any = styled.div`
   z-index: 1;
   pointer-events: none;
 `;
+
+const SelectionLeftSiderBorder: any = styled.div``;
+const SelectionTopSiderBorder: any = styled.div``;
+
 const SelectionInnerBorder: any = styled.div`
   border: 1px solid #fff;
   position: absolute;

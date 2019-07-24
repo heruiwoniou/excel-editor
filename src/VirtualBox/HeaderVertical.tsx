@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from "react";
 import styled from "styled-components";
+import cls from "classnames";
 import {
   HeaderVerticalSize,
   PageVerticalSize,
@@ -15,12 +16,16 @@ interface IHeaderVerticalProps {
   pageVerticalIndex: number;
   perLoadVerticalCount: number;
   rearLoadVerticalCount: number;
+  selectionStart: number;
+  selectionEnd: number;
 }
 const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
   headerRef,
   pageVerticalIndex,
   perLoadVerticalCount,
-  rearLoadVerticalCount
+  rearLoadVerticalCount,
+  selectionStart,
+  selectionEnd
 }) => {
   return (
     <HeaderVerticalContainer>
@@ -39,13 +44,23 @@ const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
             let pageIndex = pageVerticalIndex - count;
             return (
               pageIndex >= 0 && (
-                <HeaderPager key={`perload-${pageIndex}`} data-key={`perload-${pageIndex}`}>
+                <HeaderPager
+                  key={`perload-${pageIndex}`}
+                  data-key={`perload-${pageIndex}`}
+                >
                   {new Array(SheetRowsCount).fill(null).map((value, index) => {
                     let keyIndex =
                       pageVerticalIndex * SheetRowsCount + index + 1;
                     return (
                       <HeaderCell
                         key={`vertical-header-cell-${keyIndex}`}
+                        className={cls(
+                          keyIndex > selectionStart &&
+                            keyIndex <= selectionEnd + 1
+                            ? "selection"
+                            : "",
+                          `vertical-header-cell-${keyIndex}`
+                        )}
                         type={DirectionType.Virtual}
                         value={`${keyIndex}`}
                       />
@@ -55,12 +70,21 @@ const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
               )
             );
           })}
-          <HeaderPager key={`current-${pageVerticalIndex}`} data-key={`current-${pageVerticalIndex}`}>
+          <HeaderPager
+            key={`current-${pageVerticalIndex}`}
+            data-key={`current-${pageVerticalIndex}`}
+          >
             {new Array(SheetRowsCount).fill(null).map((value, index) => {
               let keyIndex = pageVerticalIndex * SheetRowsCount + index + 1;
               return (
                 <HeaderCell
                   key={`vertical-header-cell-${keyIndex}`}
+                  className={cls(
+                    keyIndex > selectionStart && keyIndex <= selectionEnd + 1
+                      ? "selection"
+                      : "",
+                    `vertical-header-cell-${keyIndex}`
+                  )}
                   type={DirectionType.Virtual}
                   value={`${keyIndex}`}
                 />
@@ -71,12 +95,22 @@ const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
             let count = index + 1;
             let pageIndex = pageVerticalIndex + count;
             return (
-              <HeaderPager key={`rearload-${pageIndex}`} data-key={`rearload-${pageIndex}`}>
+              <HeaderPager
+                key={`rearload-${pageIndex}`}
+                data-key={`rearload-${pageIndex}`}
+              >
                 {new Array(SheetRowsCount).fill(null).map((value, index) => {
                   let keyIndex = pageIndex * SheetRowsCount + index + 1;
                   return (
                     <HeaderCell
                       key={`vertical-header-cell-${keyIndex}`}
+                      className={cls(
+                        keyIndex > selectionStart &&
+                          keyIndex <= selectionEnd + 1
+                          ? "selection"
+                          : "",
+                        `vertical-header-cell-${keyIndex}`
+                      )}
                       type={DirectionType.Virtual}
                       value={`${keyIndex}`}
                     />
@@ -98,16 +132,14 @@ const HeaderVerticalContainer: any = styled.div`
 `;
 
 const HeaderContainer: any = styled.div`
-  margin-top: -1px;
-  margin-left: -1px;
   width: ${HeaderVerticalSize}px;
   height: calc(100% - ${defaultScrollWidth - 1}px);
   overflow: hidden;
-  border-right: 1px solid #d4d4d4;
-  border-top: 1px solid #dfdfdf;
 `;
 
 const HeaderPager: any = styled.div`
   height: ${PageVerticalSize}px;
   width: ${HeaderVerticalSize}px;
+  border-right: solid 1px #bbb;
+  box-sizing: border-box;
 `;

@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from "react";
 import styled from "styled-components";
+import cls from "classnames";
 import {
   PageHorizontalSize,
   DirectionType,
@@ -16,15 +17,24 @@ interface IHeaderHorizontalProps {
   pageHorizontalIndex: number;
   perLoadHorizontalCount: number;
   rearLoadHorizontalCount: number;
+  selectionStart: number;
+  selectionEnd: number;
 }
 const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
   headerRef,
   pageHorizontalIndex,
   perLoadHorizontalCount,
-  rearLoadHorizontalCount
+  rearLoadHorizontalCount,
+  selectionStart,
+  selectionEnd
 }) => {
   return (
     <HeaderHorizontalContainer>
+      <HeaderCorner
+        className={cls(
+          selectionStart === 0 || selectionEnd === 0 ? "selection" : ""
+        )}
+      />
       <HeaderContainer ref={headerRef}>
         <div
           style={{
@@ -62,6 +72,13 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                           return (
                             <HeaderCell
                               key={`horizontal-header-cell-${keyIndex}`}
+                              className={cls(
+                                keyIndex > selectionStart &&
+                                  keyIndex <= selectionEnd + 1
+                                  ? "selection"
+                                  : "",
+                                `horizontal-header-cell-${keyIndex}`
+                              )}
                               type={DirectionType.Horizontal}
                               value={`${keyIndex}`}
                             />
@@ -81,6 +98,12 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                 return (
                   <HeaderCell
                     key={`horizontal-header-cell-${keyIndex}`}
+                    className={cls(
+                      keyIndex > selectionStart && keyIndex <= selectionEnd + 1
+                        ? "selection"
+                        : "",
+                      `horizontal-header-cell-${keyIndex}`
+                    )}
                     type={DirectionType.Horizontal}
                     value={`${keyIndex}`}
                   />
@@ -104,6 +127,13 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                         return (
                           <HeaderCell
                             key={`horizontal-header-cell-${keyIndex}`}
+                            className={cls(
+                              keyIndex > selectionStart &&
+                                keyIndex <= selectionEnd + 1
+                                ? "selection"
+                                : "",
+                              `horizontal-header-cell-${keyIndex}`
+                            )}
                             type={DirectionType.Horizontal}
                             value={`${keyIndex}`}
                           />
@@ -129,8 +159,27 @@ const StyledPlaceHolder: any = styled(PlaceHolder)`
 const HeaderHorizontalContainer: any = styled.div`
   width: 100%;
   background: #edebe9;
+  position: relative;
 `;
-
+const HeaderCorner: any = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: ${HeaderVerticalSize}px;
+  height: ${HeaderHorizontalSize}px;
+  border-bottom: 1px solid #dfdfdf;
+  border-right: 1px solid #dfdfdf;
+  &.selection:after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    height: 2px;
+    width: 2px;
+    background: #217346;
+  }
+`;
 const HeaderContainer: any = styled.div`
   width: calc(100% - ${HeaderVerticalSize + defaultScrollWidth}px);
   margin-left: ${HeaderVerticalSize}px;
