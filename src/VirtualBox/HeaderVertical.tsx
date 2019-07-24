@@ -39,36 +39,49 @@ const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
             let pageIndex = pageVerticalIndex - count;
             return (
               pageIndex >= 0 && (
-                <HeaderPager key={`perload-${pageIndex}`}>
-                  {new Array(SheetRowsCount).fill(null).map((value, index) => (
-                    <HeaderCell
-                      type={DirectionType.Virtual}
-                      value={`${pageIndex * SheetRowsCount + index + 1}`}
-                    />
-                  ))}
+                <HeaderPager key={`perload-${pageIndex}`} data-key={`perload-${pageIndex}`}>
+                  {new Array(SheetRowsCount).fill(null).map((value, index) => {
+                    let keyIndex =
+                      pageVerticalIndex * SheetRowsCount + index + 1;
+                    return (
+                      <HeaderCell
+                        key={`vertical-header-cell-${keyIndex}`}
+                        type={DirectionType.Virtual}
+                        value={`${keyIndex}`}
+                      />
+                    );
+                  })}
                 </HeaderPager>
               )
             );
           })}
-          <HeaderPager key={`current-${pageVerticalIndex}`}>
-            {new Array(SheetRowsCount).fill(null).map((value, index) => (
-              <HeaderCell
-                type={DirectionType.Virtual}
-                value={`${pageVerticalIndex * SheetRowsCount + index + 1}`}
-              />
-            ))}
+          <HeaderPager key={`current-${pageVerticalIndex}`} data-key={`current-${pageVerticalIndex}`}>
+            {new Array(SheetRowsCount).fill(null).map((value, index) => {
+              let keyIndex = pageVerticalIndex * SheetRowsCount + index + 1;
+              return (
+                <HeaderCell
+                  key={`vertical-header-cell-${keyIndex}`}
+                  type={DirectionType.Virtual}
+                  value={`${keyIndex}`}
+                />
+              );
+            })}
           </HeaderPager>
           {new Array(rearLoadVerticalCount).fill(null).map((value, index) => {
             let count = index + 1;
             let pageIndex = pageVerticalIndex + count;
             return (
-              <HeaderPager key={`rearload-${pageIndex}`}>
-                {new Array(SheetRowsCount).fill(null).map((value, index) => (
-                  <HeaderCell
-                    type={DirectionType.Virtual}
-                    value={`${pageIndex * SheetRowsCount + index + 1}`}
-                  />
-                ))}
+              <HeaderPager key={`rearload-${pageIndex}`} data-key={`rearload-${pageIndex}`}>
+                {new Array(SheetRowsCount).fill(null).map((value, index) => {
+                  let keyIndex = pageIndex * SheetRowsCount + index + 1;
+                  return (
+                    <HeaderCell
+                      key={`vertical-header-cell-${keyIndex}`}
+                      type={DirectionType.Virtual}
+                      value={`${keyIndex}`}
+                    />
+                  );
+                })}
               </HeaderPager>
             );
           })}

@@ -56,12 +56,17 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                     >
                       {new Array(SheetCellsCount)
                         .fill(null)
-                        .map((value, index) => (
-                          <HeaderCell
-                            type={DirectionType.Horizontal}
-                            value={`${pageIndex * SheetCellsCount + index + 1}`}
-                          />
-                        ))}
+                        .map((value, index) => {
+                          let keyIndex =
+                            pageIndex * SheetCellsCount + index + 1;
+                          return (
+                            <HeaderCell
+                              key={`horizontal-header-cell-${keyIndex}`}
+                              type={DirectionType.Horizontal}
+                              value={`${keyIndex}`}
+                            />
+                          );
+                        })}
                     </HeaderPager>
                   )
                 );
@@ -70,12 +75,17 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
               key={`current-${pageHorizontalIndex}`}
               data-key={`current-${pageHorizontalIndex}`}
             >
-              {new Array(SheetCellsCount).fill(null).map((value, index) => (
-                <HeaderCell
-                  type={DirectionType.Horizontal}
-                  value={`${pageHorizontalIndex * SheetCellsCount + index + 1}`}
-                />
-              ))}
+              {new Array(SheetCellsCount).fill(null).map((value, index) => {
+                let keyIndex =
+                  pageHorizontalIndex * SheetCellsCount + index + 1;
+                return (
+                  <HeaderCell
+                    key={`horizontal-header-cell-${keyIndex}`}
+                    type={DirectionType.Horizontal}
+                    value={`${keyIndex}`}
+                  />
+                );
+              })}
             </HeaderPager>
             {new Array(rearLoadHorizontalCount)
               .fill(null)
@@ -89,12 +99,16 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                   >
                     {new Array(SheetCellsCount)
                       .fill(null)
-                      .map((value, index) => (
-                        <HeaderCell
-                          type={DirectionType.Horizontal}
-                          value={`${pageIndex * SheetCellsCount + index + 1}`}
-                        />
-                      ))}
+                      .map((value, index) => {
+                        let keyIndex = pageIndex * SheetCellsCount + index + 1;
+                        return (
+                          <HeaderCell
+                            key={`horizontal-header-cell-${keyIndex}`}
+                            type={DirectionType.Horizontal}
+                            value={`${keyIndex}`}
+                          />
+                        );
+                      })}
                   </HeaderPager>
                 );
               })}

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { debounce } from "lodash-es";
+import ReactDom from "react-dom";
+import { throttle } from "lodash-es";
 import styled from "styled-components";
 import {
   PageHorizontalSize,
@@ -17,7 +18,7 @@ import VerticalHeader from "./HeaderVertical";
 const VirtualBox: React.FC = (...rest: any) => {
   // Vertical parameters
   const verticalHeaderRef = useRef<HTMLDivElement>(null);
-  const [maxVerticalIndex, setMaxVerticalIndex] = useState<number>(0);
+  const [verticalScrollCache, setVerticalScrollCache] = useState<number>(0);
   const [pageVerticalIndex, updatePageVerticalIndex] = useState<number>(0);
   const [coefficientVertical, updateCoefficientVertical] = useState<number>(1);
   const [perLoadVerticalCount, updatePerLoadVerticalCount] = useState<number>(
@@ -27,14 +28,13 @@ const VirtualBox: React.FC = (...rest: any) => {
     RearLoadCountDefault * coefficientVertical
   );
 
-  const updatePageVerticalIndexHander = useCallback(
-    (pageIndex: number) => {
-      if (maxVerticalIndex < pageIndex) {
-        setMaxVerticalIndex(pageIndex);
-      }
-      updatePageVerticalIndex(pageIndex);
-    },
-    [maxVerticalIndex]
+  const updatePageVerticalDataHander = useCallback(
+    (pageIndex: number, cache: number) =>
+      ReactDom.unstable_batchedUpdates(() => {
+        setVerticalScrollCache(cache);
+        updatePageVerticalIndex(pageIndex);
+      }),
+    []
   );
   const updateLoadVerticalCount = useCallback((n: number) => {
     updateCoefficientVertical(n);
@@ -44,8 +44,7 @@ const VirtualBox: React.FC = (...rest: any) => {
 
   // Horizontal parameters
   const horizontalHeaderRef = useRef<HTMLDivElement>(null);
-  const [horizontalScroll, setHorizontalScroll] = useState<number>(0);
-  const [maxHorizontalIndex, setMaxHorizontalIndex] = useState<number>(0);
+  const [horizontalScrollCache, setHorizontalScrollCache] = useState<number>(0);
   const [pageHorizontalIndex, updatePageHorizontalIndex] = useState<number>(0);
   const [coefficientHorizontal, updateCoefficientHorizontal] = useState<number>(
     1
@@ -57,14 +56,13 @@ const VirtualBox: React.FC = (...rest: any) => {
     number
   >(RearLoadCountDefault * coefficientHorizontal);
 
-  const updatePageHorizontalIndexHander = useCallback(
-    (pageIndex: number) => {
-      if (maxHorizontalIndex < pageIndex) {
-        setMaxHorizontalIndex(pageIndex);
-      }
-      updatePageHorizontalIndex(pageIndex);
-    },
-    [maxHorizontalIndex]
+  const updatePageHorizontalDataHander = useCallback(
+    (pageIndex: number, cache: number) =>
+      ReactDom.unstable_batchedUpdates(() => {
+        setHorizontalScrollCache(cache);
+        updatePageHorizontalIndex(pageIndex);
+      }),
+    []
   );
   const updateLoadHorizontalCount = useCallback((n: number) => {
     updateCoefficientHorizontal(n);
@@ -76,75 +74,109 @@ const VirtualBox: React.FC = (...rest: any) => {
 
   useEffect(() => {
     let el = ref.current;
+    let vel = verticalHeaderRef.current;
+    let hel = horizontalHeaderRef.current;
+    if (el) {
+      el.scrollTop = verticalScrollCache;
+      el.scrollLeft = horizontalScrollCache;
+    }
 
-    let handler = (function() {
-      let scrollTopCache: number;
-      let scrollLeftCache: number;
-      return (e: Event) => {
-        let container: HTMLDivElement;
-        let scrollTop: number;
-        let currentPageHorizontalIndex: number;
-        let scrollLeft: number;
-        let currentPageVerticalIndex: number;
+    if (vel) {
+      vel.scrollTop = verticalScrollCache;
+      vel.scrollLeft = horizontalScrollCache;
+    }
 
-        if (e.target) {
-          container = e.target as HTMLDivElement;
+    if (hel) {
+      hel.scrollTop = verticalScrollCache;
+      hel.scrollLeft = horizontalScrollCache;
+    }
 
-          //Vertical
-          scrollTop = container.scrollTop;
-          if (scrollTopCache !== scrollTop) {
-            scrollTopCache = scrollTop;
-            if (verticalHeaderRef.current) {
-              verticalHeaderRef.current.scrollTop = scrollTop;
-            }
-          }
-          currentPageVerticalIndex = Math.floor(scrollTop / PageVerticalSize);
-          if (currentPageVerticalIndex !== pageVerticalIndex) {
-            container.removeEventListener("scroll", handler);
-            updatePageVerticalIndexHander(currentPageVerticalIndex);
-          }
+    console.log("init", verticalScrollCache);
+    console.log(
+      verticalScrollCache,
+      horizontalScrollCache,
+      pageHorizontalIndex,
+      pageVerticalIndex
+    );
 
-          // Horizontal
-          scrollLeft = container.scrollLeft;
-          if (scrollLeftCache !== scrollLeft) {
-            scrollLeftCache = scrollLeft;
-            if (horizontalHeaderRef.current) {
-              horizontalHeaderRef.current.scrollLeft = scrollLeft;
-            }
-          }
-          currentPageHorizontalIndex = Math.floor(
-            scrollLeft / PageHorizontalSize
-          );
-          if (currentPageHorizontalIndex !== pageHorizontalIndex) {
-            container.removeEventListener("scroll", handler);
-            updatePageHorizontalIndexHander(currentPageHorizontalIndex);
-          }
+    let handler = throttle((e: Event) => {
+      let container: HTMLDivElement;
+      let scrollTop: number;
+      let currentPageHorizontalIndex: number;
+      let scrollLeft: number;
+      let currentPageVerticalIndex: number;
+
+      if (e.target) {
+        container = e.target as HTMLDivElement;
+
+        //Vertical
+        scrollTop = container.scrollTop;
+        if (verticalHeaderRef.current) {
+          verticalHeaderRef.current.scrollTop = scrollTop;
         }
-      };
-    })();
+        currentPageVerticalIndex = Math.floor(scrollTop / PageVerticalSize);
+        if (currentPageVerticalIndex !== pageVerticalIndex) {
+          container.removeEventListener("scroll", handler);
+          console.log(
+            "update",
+            currentPageVerticalIndex,
+            pageVerticalIndex,
+            verticalScrollCache,
+            scrollTop
+          );
+          updatePageVerticalDataHander(currentPageVerticalIndex, scrollTop);
+        }
+
+        // Horizontal
+        scrollLeft = container.scrollLeft;
+        if (horizontalHeaderRef.current) {
+          horizontalHeaderRef.current.scrollLeft = scrollLeft;
+        }
+        currentPageHorizontalIndex = Math.floor(
+          scrollLeft / PageHorizontalSize
+        );
+        if (currentPageHorizontalIndex !== pageHorizontalIndex) {
+          updatePageHorizontalDataHander(
+            currentPageHorizontalIndex,
+            scrollLeft
+          );
+        }
+      }
+    }, 200);
+
     el && el.addEventListener("scroll", handler);
 
     return () => {
-      el && el.removeEventListener("scroll", handler);
+      if (el) {
+        el.removeEventListener("scroll", handler);
+      }
     };
   }, [
+    verticalScrollCache,
+    horizontalScrollCache,
     pageHorizontalIndex,
     pageVerticalIndex,
-    updatePageHorizontalIndexHander,
-    updatePageVerticalIndexHander
+    updatePageHorizontalDataHander,
+    updatePageVerticalDataHander
   ]);
 
   useEffect(() => {
-    let handler = debounce(() => {
+    let handler = throttle(() => {
       let el = ref.current;
       if (el) {
         // Horizontal
         let offsetWidth = el.offsetWidth;
-        updateLoadVerticalCount(Math.ceil(offsetWidth / PageVerticalSize));
+        if (offsetWidth < PageHorizontalSize) {
+          updateLoadVerticalCount(1);
+        } else {
+          updateLoadVerticalCount(Math.floor(offsetWidth / PageHorizontalSize));
+        }
 
         // Vertical
         let offsetHeight = el.offsetHeight;
-        updateLoadHorizontalCount(Math.ceil(offsetHeight / PageHorizontalSize));
+        if (offsetHeight < PageVerticalSize) {
+          updateLoadHorizontalCount(Math.ceil(offsetHeight / PageVerticalSize));
+        }
       }
     });
     handler();
@@ -201,6 +233,7 @@ const VirtualBox: React.FC = (...rest: any) => {
                 pageVerticalIndex - count >= 0 && (
                   <VirtualPagerRow
                     key={`perload-${pageVerticalIndex - count}`}
+                    data-key={`perload-${pageVerticalIndex - count}`}
                     pageVerticalIndex={pageVerticalIndex - count}
                     {...VirtualPagerRowProps}
                   />
@@ -209,6 +242,7 @@ const VirtualBox: React.FC = (...rest: any) => {
             })}
             <VirtualPagerRow
               key={`current-${pageVerticalIndex}`}
+              data-key={`current-${pageVerticalIndex}`}
               pageVerticalIndex={pageVerticalIndex}
               {...VirtualPagerRowProps}
             />
@@ -217,21 +251,13 @@ const VirtualBox: React.FC = (...rest: any) => {
               return (
                 <VirtualPagerRow
                   key={`rearload-${pageVerticalIndex + count}`}
+                  data-key={`rearload-${pageVerticalIndex + count}`}
                   pageVerticalIndex={pageVerticalIndex + count}
                   {...VirtualPagerRowProps}
                 />
               );
             })}
           </div>
-          <MaxPoint
-            style={{
-              top:
-                (maxVerticalIndex + rearLoadVerticalCount) * PageVerticalSize,
-              left:
-                (maxHorizontalIndex + rearLoadHorizontalCount) *
-                PageHorizontalSize
-            }}
-          />
         </VirtualContainer>
       </ContentContainer>
     </TableContainer>

@@ -7,15 +7,17 @@ interface IPlaceHolder {
   type: DirectionType;
 }
 
-const PlaceHolder: FunctionComponent<IPlaceHolder> = props => {
-  return <StyledPlaceHolder {...props} />;
+const PlaceHolder: FunctionComponent<IPlaceHolder> = ({
+  type,
+  size,
+  ...rest
+}) => {
+  return <StyledPlaceHolder {...rest} style={{
+    width: type === DirectionType.Virtual ? 1 : size,
+    height: type === DirectionType.Virtual ? size : 1
+  }}/>;
 };
 
 export default PlaceHolder;
 
-const StyledPlaceHolder: any = styled.div<IPlaceHolder>`
-  width: ${(props: IPlaceHolder) =>
-    props.type === DirectionType.Virtual ? 1 : props.size}px;
-  height: ${(props: IPlaceHolder) =>
-    props.type === DirectionType.Virtual ? props.size : 1}px;
-`;
+const StyledPlaceHolder: any = styled.div<IPlaceHolder>``;
