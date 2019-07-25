@@ -7,13 +7,15 @@ import {
   PerLoadCountDefault,
   RearLoadCountDefault,
   DirectionType,
-  HeaderHorizontalSize
+  HeaderHorizontalSize,
+  ToolBarHeight
 } from "./Constants";
 import PlaceHolder from "./Component/PlaceHolder";
 import VirtualPagerRow from "./Component/VirtualPagerRow";
 import HorizontalHeader from "./Component/HeaderHorizontal";
 import VerticalHeader from "./Component/HeaderVertical";
 import Selection from "./Component/Selection";
+import Toolbar from "./Component/Toolbar";
 import useStore, { ActionType } from "../store";
 import {
   useVirtualScrollEffect,
@@ -173,73 +175,81 @@ const VirtualBox: React.FC = (...rest: any) => {
   useResizeEffect(ref, updateLoadHorizontalCount, updateLoadVerticalCount);
 
   return (
-    <TableContainer>
-      <HorizontalHeader {...HorizontalHeaderProps} />
-      <ContentContainer>
-        <VerticalHeader {...VerticalHeaderProps} />
-        <VirtualContainer ref={ref} {...rest}>
-          <PlaceHolder
-            type={DirectionType.Virtual}
-            size={
-              pageVerticalIndex - perLoadVerticalCount > 0
-                ? (pageVerticalIndex - perLoadVerticalCount) * PageVerticalSize
-                : 0
-            }
-          />
-          <div
-            style={{
-              width:
-                (pageHorizontalIndex + rearLoadHorizontalCount + 1) *
-                PageHorizontalSize
-            }}
-          >
-            {new Array(perLoadVerticalCount).fill(null).map((value, index) => {
-              let count = perLoadVerticalCount - index;
-              return (
-                pageVerticalIndex - count >= 0 && (
-                  <VirtualPagerRow
-                    key={`perload-${pageVerticalIndex - count}`}
-                    data-key={`perload-${pageVerticalIndex - count}`}
-                    pageVerticalIndex={pageVerticalIndex - count}
-                    {...VirtualPagerRowProps}
-                  />
-                )
-              );
-            })}
-            <VirtualPagerRow
-              key={`current-${pageVerticalIndex}`}
-              data-key={`current-${pageVerticalIndex}`}
-              pageVerticalIndex={pageVerticalIndex}
-              {...VirtualPagerRowProps}
+    <>
+      <Toolbar />
+      <TableContainer>
+        <HorizontalHeader {...HorizontalHeaderProps} />
+        <ContentContainer>
+          <VerticalHeader {...VerticalHeaderProps} />
+          <VirtualContainer ref={ref} {...rest}>
+            <PlaceHolder
+              type={DirectionType.Virtual}
+              size={
+                pageVerticalIndex - perLoadVerticalCount > 0
+                  ? (pageVerticalIndex - perLoadVerticalCount) *
+                    PageVerticalSize
+                  : 0
+              }
             />
-            {new Array(rearLoadVerticalCount).fill(null).map((value, index) => {
-              let count = index + 1;
-              return (
-                <VirtualPagerRow
-                  key={`rearload-${pageVerticalIndex + count}`}
-                  data-key={`rearload-${pageVerticalIndex + count}`}
-                  pageVerticalIndex={pageVerticalIndex + count}
-                  {...VirtualPagerRowProps}
-                />
-              );
-            })}
-          </div>
-          <Selection
-            selectionRef={selectionRef}
-            exitInputMode={exitInputMode}
-            isInputMode={isInputMode}
-            startRowIndex={startRowIndex}
-            endRowIndex={endRowIndex}
-            startCellIndex={startCellIndex}
-            endCellIndex={endCellIndex}
-          />
-        </VirtualContainer>
-      </ContentContainer>
-    </TableContainer>
+            <div
+              style={{
+                width:
+                  (pageHorizontalIndex + rearLoadHorizontalCount + 1) *
+                  PageHorizontalSize
+              }}
+            >
+              {new Array(perLoadVerticalCount)
+                .fill(null)
+                .map((value, index) => {
+                  let count = perLoadVerticalCount - index;
+                  return (
+                    pageVerticalIndex - count >= 0 && (
+                      <VirtualPagerRow
+                        key={`perload-${pageVerticalIndex - count}`}
+                        data-key={`perload-${pageVerticalIndex - count}`}
+                        pageVerticalIndex={pageVerticalIndex - count}
+                        {...VirtualPagerRowProps}
+                      />
+                    )
+                  );
+                })}
+              <VirtualPagerRow
+                key={`current-${pageVerticalIndex}`}
+                data-key={`current-${pageVerticalIndex}`}
+                pageVerticalIndex={pageVerticalIndex}
+                {...VirtualPagerRowProps}
+              />
+              {new Array(rearLoadVerticalCount)
+                .fill(null)
+                .map((value, index) => {
+                  let count = index + 1;
+                  return (
+                    <VirtualPagerRow
+                      key={`rearload-${pageVerticalIndex + count}`}
+                      data-key={`rearload-${pageVerticalIndex + count}`}
+                      pageVerticalIndex={pageVerticalIndex + count}
+                      {...VirtualPagerRowProps}
+                    />
+                  );
+                })}
+            </div>
+            <Selection
+              selectionRef={selectionRef}
+              exitInputMode={exitInputMode}
+              isInputMode={isInputMode}
+              startRowIndex={startRowIndex}
+              endRowIndex={endRowIndex}
+              startCellIndex={startCellIndex}
+              endCellIndex={endCellIndex}
+            />
+          </VirtualContainer>
+        </ContentContainer>
+      </TableContainer>
+    </>
   );
 };
 const TableContainer: any = styled.div`
-  height: 100vh;
+  height: calc(100vh - ${ToolBarHeight}px);
   width: 100vw;
 `;
 

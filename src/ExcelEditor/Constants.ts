@@ -1,3 +1,5 @@
+export const ToolBarHeight: number = 100;
+export const ToolBarCellWidth: number = 100;
 export const HeaderVerticalSize: number = 40;
 export const HeaderHorizontalSize: number = 20;
 export const CellWidth: number = 80;

@@ -2,6 +2,7 @@ import { useEffect, RefObject } from "react";
 import {
   HeaderVerticalSize,
   HeaderHorizontalSize,
+  ToolBarHeight,
   CellWidth,
   CellHeight
 } from "../Constants";
@@ -36,7 +37,7 @@ const useSelectionEffect = (
         (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
       );
       sRowIndex = eRowIndex = Math.floor(
-        (scrollTop + e.clientY - HeaderHorizontalSize) / CellHeight
+        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) / CellHeight
       );
       setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
       document.removeEventListener("mouseup", mouseUpHandler);
@@ -64,7 +65,7 @@ const useSelectionEffect = (
         (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
       );
       eRowIndex = Math.floor(
-        (scrollTop + e.clientY - HeaderHorizontalSize) / CellHeight
+        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) / CellHeight
       );
       isHReverse = eCellIndex < sCellIndex;
       isVReverse = eRowIndex < sRowIndex;
