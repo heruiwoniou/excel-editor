@@ -7,7 +7,7 @@ import {
   CellHeight,
   CellWidth
 } from "./constants";
-import useStore from "./store";
+import useStore from "../store";
 
 interface IGridValuesProps {
   pageRowIndex: number;
@@ -42,6 +42,8 @@ const GridValues: FunctionComponent<IGridValuesProps> = ({
                 return (
                   hasValueCellArray.includes(cellNumber) && (
                     <GridCell
+                      key={`${cellNumber}:${rowNumber}`}
+                      data-key={`${cellNumber}:${rowNumber}`}
                       style={{
                         left: `${cellIndex * CellWidth}px`
                       }}
@@ -66,11 +68,17 @@ const GridValuesContainer: any = styled.div`
 `;
 
 const GridRow: any = styled.div`
+  position: relative;
   height: ${CellHeight}px;
 `;
 const GridCell: any = styled.div`
   position: absolute;
   top: 0;
-  width: ${CellWidth}px;
-  height: ${CellHeight}px;
+  width: ${CellWidth - 3}px;
+  height: ${CellHeight - 1}px;
+  margin: 0 2px 0 1px;
+  box-sizing: border-box;
+  font-size: 12px;
+  line-height: ${CellHeight}px;
+  overflow: hidden;
 `;

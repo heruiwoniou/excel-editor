@@ -2,7 +2,8 @@ import React, {
   useReducer,
   useContext,
   FunctionComponent,
-  Dispatch
+  Dispatch,
+  PropsWithChildren
 } from "react";
 
 export enum ActionType {
@@ -44,11 +45,7 @@ const DataContext = React.createContext<[IState, Dispatch<IAction>]>([
   () => {}
 ]);
 
-interface IDataProviderProps {
-  children: JSX.Element[] | JSX.Element;
-}
-
-export const DataProvider: FunctionComponent<IDataProviderProps> = ({
+export const DataProvider: FunctionComponent<PropsWithChildren<{}>> = ({
   children
 }) => {
   const contextValue = useReducer<React.Reducer<IState, IAction>>(

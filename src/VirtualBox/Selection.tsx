@@ -6,6 +6,8 @@ import React, {
 } from "react";
 import styled, { css } from "styled-components";
 import { CellWidth, CellHeight } from "./constants";
+import { trim } from "../common/utils";
+import useStore from "../store";
 
 interface ISelectionProps {
   startRowIndex: number;
@@ -43,6 +45,13 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
   endCellIndex
 }) => {
   const ref = useRef<HTMLInputElement>(null);
+  const [
+    {
+      data: { [`${startCellIndex + 1}:${startRowIndex + 1}`]: inputValue = "" }
+    }
+  ] = useStore();
+
+  const [{ data }] = useStore();
 
   const style = calcStyle({
     startRowIndex,
@@ -50,12 +59,15 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
     startCellIndex,
     endCellIndex
   });
+
   const handleBlur = useCallback(
     (e: FocusEvent) => {
-      let input = e.target as HTMLInputElement;
-      exitInputMode(input.value, startRowIndex, startCellIndex);
+      let input = ref.current;
+      if (input && trim(input.value)) {
+        exitInputMode(trim(input.value), startRowIndex + 1, startCellIndex + 1);
+      }
     },
-    [startRowIndex, startCellIndex, exitInputMode]
+    [isInputMode]
   );
 
   useEffect(() => {
@@ -75,6 +87,7 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
             <StyledInput
               className="edit-mode-input"
               ref={ref}
+              defaultValue={inputValue}
               onBlur={handleBlur}
             />
           )}
@@ -124,13 +137,15 @@ const StyledInput: any = styled.input.attrs(props => ({
   type: "text"
 }))`
   border: 0px;
-  background: transparent;
-  height: 100%;
-  width: calc(100% - 4px);
+  background: white;
+  height: calc(100% - 1px);
+  width: calc(100% - 1px);
   margin: 0;
-  line-height: ${CellHeight}px;
+  line-height: 20px;
   padding: 0 2px;
   outline: none;
+  box-sizing: border-box;
+  vertical-align: top;
 `;
 const SelectionAreaTop: any = styled.div`
   ${commonStyle}

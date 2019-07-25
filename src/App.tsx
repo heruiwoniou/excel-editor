@@ -2,13 +2,16 @@ import React from "react";
 import styled from "styled-components";
 import VirtualBox from "./VirtualBox";
 import { GlobalStyle } from "./themes/globalStyles";
+import { DataProvider } from "./store";
 
 const App: React.FC = () => {
   return (
     <>
       <GlobalStyle />
       <AppContainer>
-        <VirtualBox />
+        <DataProvider>
+          <VirtualBox />
+        </DataProvider>
       </AppContainer>
     </>
   );

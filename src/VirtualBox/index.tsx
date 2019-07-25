@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import ReactDom from "react-dom";
-import { throttle } from "lodash";
 import styled from "styled-components";
 import {
   PageHorizontalSize,
@@ -8,23 +7,23 @@ import {
   PerLoadCountDefault,
   RearLoadCountDefault,
   DirectionType,
-  CellWidth,
-  CellHeight,
-  HeaderVerticalSize,
   HeaderHorizontalSize
 } from "./constants";
 import PlaceHolder from "./PlaceHolder";
 import VirtualPagerRow from "./VirtualPagerRow";
 import HorizontalHeader from "./HeaderHorizontal";
 import VerticalHeader from "./HeaderVertical";
-import Selection, { calcStyle } from "./Selection";
-import { addClass, removeClass, forEach } from "../common/utils";
-import useStore, { DataProvider, ActionType } from "./store";
+import Selection from "./Selection";
+import useStore, { ActionType } from "../store";
+import {
+  useVirtualScrollEffect,
+  useSelectionEffect,
+  useModeChangeEffect,
+  useResizeEffect
+} from "./effects";
 
 const VirtualBox: React.FC = (...rest: any) => {
-  const [data, dispatch] = useStore();
-  console.log(data);
-
+  const [, dispatch] = useStore();
   // Selection
   const [selection, setSelection] = useState<number[]>([-1, -1, -1, -1]);
   const [isInputMode, setInputMode] = useState<boolean>(false);
@@ -77,11 +76,15 @@ const VirtualBox: React.FC = (...rest: any) => {
       }),
     []
   );
-  const updateLoadHorizontalCount = useCallback((n: number) => {
-    updateCoefficientHorizontal(n);
-    updatePerLoadHorizontalCount(PerLoadCountDefault * n);
-    updateRearLoadHorizontalCount(RearLoadCountDefault * n);
-  }, []);
+  const updateLoadHorizontalCount = useCallback(
+    (n: number) =>
+      ReactDom.unstable_batchedUpdates(() => {
+        updateCoefficientHorizontal(n);
+        updatePerLoadHorizontalCount(PerLoadCountDefault * n);
+        updateRearLoadHorizontalCount(RearLoadCountDefault * n);
+      }),
+    []
+  );
 
   const ref = useRef<HTMLDivElement>(null);
   const selectionRef = useRef<HTMLDivElement>(null);
@@ -113,321 +116,101 @@ const VirtualBox: React.FC = (...rest: any) => {
   };
 
   const exitInputMode = useCallback(
-    (value: string, rowIndex: number, cellIndex: number) => {
+    (value: string, rowNumber: number, cellNumber: number) => {
       setInputMode(false);
       dispatch({
         type: ActionType.Update,
         payload: {
-          key: `${cellIndex}:${rowIndex}`,
+          key: `${cellNumber}:${rowNumber}`,
           value
         }
       });
     },
-    [setInputMode, dispatch]
+    []
   );
 
-  useEffect(() => {
-    let el = ref.current;
-    let vel = verticalHeaderRef.current;
-    let hel = horizontalHeaderRef.current;
-    if (el) {
-      el.scrollTop = verticalScrollCache;
-      el.scrollLeft = horizontalScrollCache;
-    }
-
-    if (vel) {
-      vel.scrollTop = verticalScrollCache;
-      vel.scrollLeft = horizontalScrollCache;
-    }
-
-    if (hel) {
-      hel.scrollTop = verticalScrollCache;
-      hel.scrollLeft = horizontalScrollCache;
-    }
-
-    let handler = (e: Event) => {
-      let container: HTMLDivElement;
-      let scrollTop: number;
-      let currentPageHorizontalIndex: number;
-      let scrollLeft: number;
-      let currentPageVerticalIndex: number;
-
-      if (e.target) {
-        container = e.target as HTMLDivElement;
-
-        //Vertical
-        scrollTop = container.scrollTop;
-        if (verticalHeaderRef.current) {
-          verticalHeaderRef.current.scrollTop = scrollTop;
-        }
-        currentPageVerticalIndex = Math.floor(scrollTop / PageVerticalSize);
-        if (currentPageVerticalIndex !== pageVerticalIndex) {
-          container.removeEventListener("scroll", handler);
-          updatePageVerticalDataHander(currentPageVerticalIndex, scrollTop);
-        }
-
-        // Horizontal
-        scrollLeft = container.scrollLeft;
-        if (horizontalHeaderRef.current) {
-          horizontalHeaderRef.current.scrollLeft = scrollLeft;
-        }
-        currentPageHorizontalIndex = Math.floor(
-          scrollLeft / PageHorizontalSize
-        );
-        if (currentPageHorizontalIndex !== pageHorizontalIndex) {
-          updatePageHorizontalDataHander(
-            currentPageHorizontalIndex,
-            scrollLeft
-          );
-        }
-      }
-    };
-
-    el && el.addEventListener("scroll", handler);
-
-    return () => {
-      el && el.removeEventListener("scroll", handler);
-    };
-  }, [
+  useVirtualScrollEffect(
+    ref,
+    verticalHeaderRef,
+    horizontalHeaderRef,
     verticalScrollCache,
     horizontalScrollCache,
     pageHorizontalIndex,
     pageVerticalIndex,
     updatePageHorizontalDataHander,
     updatePageVerticalDataHander
-  ]);
+  );
 
-  useEffect(() => {
-    let el = ref.current;
-    let selectionEl = selectionRef.current;
-    let sRowIndex: number;
-    let sCellIndex: number;
-    let eRowIndex: number;
-    let eCellIndex: number;
-    let isHReverse: boolean;
-    let isVReverse: boolean;
-    let cacheOnselectstart: any;
-    let checkInputMode = () => !!document.querySelector(".edit-mode-input");
+  useSelectionEffect(ref, selectionRef, setSelection);
 
-    let mouseDownHandler = (e: MouseEvent) => {
-      let scrollTop = el ? el.scrollTop : 0;
-      let scrollLeft = el ? el.scrollLeft : 0;
-      cacheOnselectstart = document.onselectstart;
-      document.onselectstart = () => false;
+  useModeChangeEffect(ref, setInputMode);
 
-      sCellIndex = eCellIndex = Math.floor(
-        (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
-      );
-      sRowIndex = eRowIndex = Math.floor(
-        (scrollTop + e.clientY - HeaderHorizontalSize) / CellHeight
-      );
-      setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
-      document.removeEventListener("mouseup", mouseUpHandler);
-      document.removeEventListener("mousemove", mouseMoveHandler);
-      document.addEventListener("mousemove", mouseMoveHandler);
-      document.addEventListener("mouseup", mouseUpHandler);
-    };
-    let mouseUpHandler = (e: MouseEvent) => {
-      if (checkInputMode()) return;
-      document.onselectstart = cacheOnselectstart;
-      document.removeEventListener("mouseup", mouseUpHandler);
-      document.removeEventListener("mousemove", mouseMoveHandler);
-      setSelection([
-        isVReverse ? eRowIndex : sRowIndex,
-        isHReverse ? eCellIndex : sCellIndex,
-        isVReverse ? sRowIndex : eRowIndex,
-        isHReverse ? sCellIndex : eCellIndex
-      ]);
-    };
-    let mouseMoveHandler = (e: MouseEvent) => {
-      if (checkInputMode()) return;
-      let scrollTop = el ? el.scrollTop : 0;
-      let scrollLeft = el ? el.scrollLeft : 0;
-      eCellIndex = Math.floor(
-        (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
-      );
-      eRowIndex = Math.floor(
-        (scrollTop + e.clientY - HeaderHorizontalSize) / CellHeight
-      );
-      isHReverse = eCellIndex < sCellIndex;
-      isVReverse = eRowIndex < sRowIndex;
-
-      let { top, left, width, height } = calcStyle({
-        startRowIndex: isVReverse ? eRowIndex : sRowIndex,
-        endRowIndex: isVReverse ? sRowIndex : eRowIndex,
-        startCellIndex: isHReverse ? eCellIndex : sCellIndex,
-        endCellIndex: isHReverse ? sCellIndex : eCellIndex
-      });
-
-      if (selectionEl) {
-        selectionEl.style.top = `${top}px`;
-        selectionEl.style.left = `${left}px`;
-        selectionEl.style.width = `${width}px`;
-        selectionEl.style.height = `${height}px`;
-      }
-
-      forEach(document.querySelectorAll(".selection"), (el: HTMLElement) =>
-        removeClass(el, "selection")
-      );
-
-      let corner = document.querySelector(".header-corner");
-      if (sCellIndex === 0 || eCellIndex === 0) {
-        addClass(corner, "selection");
-      } else {
-        removeClass(corner, "selection");
-      }
-
-      forEach(
-        document.querySelectorAll(
-          new Array(Math.abs(eCellIndex - sCellIndex))
-            .fill(null)
-            .reduce(
-              (p, c, i) =>
-                (p += `, .horizontal-header-cell-${(isHReverse
-                  ? eCellIndex
-                  : sCellIndex) +
-                  i +
-                  2}`),
-              `.horizontal-header-cell-${(isHReverse
-                ? eCellIndex
-                : sCellIndex) + 1}`
-            )
-        ),
-        (el: HTMLElement) => addClass(el, "selection")
-      );
-
-      forEach(
-        document.querySelectorAll(
-          new Array(Math.abs(eRowIndex - sRowIndex))
-            .fill(null)
-            .reduce(
-              (p, c, i) =>
-                (p += `, .vertical-header-cell-${(isVReverse
-                  ? eRowIndex
-                  : sRowIndex) +
-                  i +
-                  2}`),
-              `.vertical-header-cell-${(isVReverse ? eRowIndex : sRowIndex) +
-                1}`
-            )
-        ),
-        (el: HTMLElement) => addClass(el, "selection")
-      );
-    };
-
-    el && el.addEventListener("mousedown", mouseDownHandler);
-    return () => {
-      el && el.removeEventListener("mousedown", mouseDownHandler);
-    };
-  }, []);
-
-  useEffect(() => {
-    let el = ref.current;
-
-    let dblClickHandler = (e: MouseEvent) => setInputMode(true);
-    el && el.addEventListener("dblclick", dblClickHandler);
-    return () => {
-      el && el.removeEventListener("dblclick", dblClickHandler);
-    };
-  }, []);
-
-  useEffect(() => {
-    let handler = throttle(() => {
-      let el = ref.current;
-      if (el) {
-        // Horizontal
-        let offsetWidth = el.offsetWidth;
-        if (offsetWidth < PageHorizontalSize) {
-          updateLoadVerticalCount(1);
-        } else {
-          updateLoadVerticalCount(Math.floor(offsetWidth / PageHorizontalSize));
-        }
-
-        // Vertical
-        let offsetHeight = el.offsetHeight;
-        if (offsetHeight < PageVerticalSize) {
-          updateLoadHorizontalCount(Math.ceil(offsetHeight / PageVerticalSize));
-        }
-      }
-    });
-    handler();
-    window.addEventListener("resize", handler);
-    return () => {
-      window.removeEventListener("resize", handler);
-    };
-  }, [updateLoadHorizontalCount, updateLoadVerticalCount]);
+  useResizeEffect(ref, updateLoadHorizontalCount, updateLoadVerticalCount);
 
   return (
-    <DataProvider>
-      <TableContainer>
-        <HorizontalHeader {...HorizontalHeaderProps} />
-        <ContentContainer>
-          <VerticalHeader {...VerticalHeaderProps} />
-          <VirtualContainer ref={ref} {...rest}>
-            <PlaceHolder
-              type={DirectionType.Virtual}
-              size={
-                pageVerticalIndex - perLoadVerticalCount > 0
-                  ? (pageVerticalIndex - perLoadVerticalCount) *
-                    PageVerticalSize
-                  : 0
-              }
+    <TableContainer>
+      <HorizontalHeader {...HorizontalHeaderProps} />
+      <ContentContainer>
+        <VerticalHeader {...VerticalHeaderProps} />
+        <VirtualContainer ref={ref} {...rest}>
+          <PlaceHolder
+            type={DirectionType.Virtual}
+            size={
+              pageVerticalIndex - perLoadVerticalCount > 0
+                ? (pageVerticalIndex - perLoadVerticalCount) * PageVerticalSize
+                : 0
+            }
+          />
+          <div
+            style={{
+              width:
+                (pageHorizontalIndex + rearLoadHorizontalCount + 1) *
+                PageHorizontalSize
+            }}
+          >
+            {new Array(perLoadVerticalCount).fill(null).map((value, index) => {
+              let count = perLoadVerticalCount - index;
+              return (
+                pageVerticalIndex - count >= 0 && (
+                  <VirtualPagerRow
+                    key={`perload-${pageVerticalIndex - count}`}
+                    data-key={`perload-${pageVerticalIndex - count}`}
+                    pageVerticalIndex={pageVerticalIndex - count}
+                    {...VirtualPagerRowProps}
+                  />
+                )
+              );
+            })}
+            <VirtualPagerRow
+              key={`current-${pageVerticalIndex}`}
+              data-key={`current-${pageVerticalIndex}`}
+              pageVerticalIndex={pageVerticalIndex}
+              {...VirtualPagerRowProps}
             />
-            <div
-              style={{
-                width:
-                  (pageHorizontalIndex + rearLoadHorizontalCount + 1) *
-                  PageHorizontalSize
-              }}
-            >
-              {new Array(perLoadVerticalCount)
-                .fill(null)
-                .map((value, index) => {
-                  let count = perLoadVerticalCount - index;
-                  return (
-                    pageVerticalIndex - count >= 0 && (
-                      <VirtualPagerRow
-                        key={`perload-${pageVerticalIndex - count}`}
-                        data-key={`perload-${pageVerticalIndex - count}`}
-                        pageVerticalIndex={pageVerticalIndex - count}
-                        {...VirtualPagerRowProps}
-                      />
-                    )
-                  );
-                })}
-              <VirtualPagerRow
-                key={`current-${pageVerticalIndex}`}
-                data-key={`current-${pageVerticalIndex}`}
-                pageVerticalIndex={pageVerticalIndex}
-                {...VirtualPagerRowProps}
-              />
-              {new Array(rearLoadVerticalCount)
-                .fill(null)
-                .map((value, index) => {
-                  let count = index + 1;
-                  return (
-                    <VirtualPagerRow
-                      key={`rearload-${pageVerticalIndex + count}`}
-                      data-key={`rearload-${pageVerticalIndex + count}`}
-                      pageVerticalIndex={pageVerticalIndex + count}
-                      {...VirtualPagerRowProps}
-                    />
-                  );
-                })}
-            </div>
-            <Selection
-              selectionRef={selectionRef}
-              exitInputMode={exitInputMode}
-              isInputMode={isInputMode}
-              startRowIndex={startRowIndex}
-              endRowIndex={endRowIndex}
-              startCellIndex={startCellIndex}
-              endCellIndex={endCellIndex}
-            />
-          </VirtualContainer>
-        </ContentContainer>
-      </TableContainer>
-    </DataProvider>
+            {new Array(rearLoadVerticalCount).fill(null).map((value, index) => {
+              let count = index + 1;
+              return (
+                <VirtualPagerRow
+                  key={`rearload-${pageVerticalIndex + count}`}
+                  data-key={`rearload-${pageVerticalIndex + count}`}
+                  pageVerticalIndex={pageVerticalIndex + count}
+                  {...VirtualPagerRowProps}
+                />
+              );
+            })}
+          </div>
+          <Selection
+            selectionRef={selectionRef}
+            exitInputMode={exitInputMode}
+            isInputMode={isInputMode}
+            startRowIndex={startRowIndex}
+            endRowIndex={endRowIndex}
+            startCellIndex={startCellIndex}
+            endCellIndex={endCellIndex}
+          />
+        </VirtualContainer>
+      </ContentContainer>
+    </TableContainer>
   );
 };
 const TableContainer: any = styled.div`

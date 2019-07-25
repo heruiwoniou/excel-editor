@@ -14,7 +14,7 @@ export const defaultScrollWidth = (function() {
 const originArray: [] = [];
 const _forEach = originArray.forEach;
 
-const trim = function(string: string) {
+export const trim = function(string: string) {
   return (string || '').replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '');
 };
 
