@@ -1,6 +1,5 @@
 import React, { FunctionComponent } from "react";
 import styled from "styled-components";
-import cls from "classnames";
 import {
   HeaderVerticalSize,
   PageVerticalSize,
@@ -16,16 +15,12 @@ interface IHeaderVerticalProps {
   pageVerticalIndex: number;
   perLoadVerticalCount: number;
   rearLoadVerticalCount: number;
-  selectionStart: number;
-  selectionEnd: number;
 }
 const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
   headerRef,
   pageVerticalIndex,
   perLoadVerticalCount,
-  rearLoadVerticalCount,
-  selectionStart,
-  selectionEnd
+  rearLoadVerticalCount
 }) => {
   return (
     <HeaderVerticalContainer>
@@ -54,13 +49,7 @@ const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
                     return (
                       <HeaderCell
                         key={`vertical-header-cell-${keyIndex}`}
-                        className={cls(
-                          keyIndex > selectionStart &&
-                            keyIndex <= selectionEnd + 1
-                            ? "selection"
-                            : "",
-                          `vertical-header-cell-${keyIndex}`
-                        )}
+                        className={`vertical-header-cell-${keyIndex}`}
                         type={DirectionType.Virtual}
                         value={`${keyIndex}`}
                       />
@@ -79,12 +68,7 @@ const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
               return (
                 <HeaderCell
                   key={`vertical-header-cell-${keyIndex}`}
-                  className={cls(
-                    keyIndex > selectionStart && keyIndex <= selectionEnd + 1
-                      ? "selection"
-                      : "",
-                    `vertical-header-cell-${keyIndex}`
-                  )}
+                  className={`vertical-header-cell-${keyIndex}`}
                   type={DirectionType.Virtual}
                   value={`${keyIndex}`}
                 />
@@ -104,13 +88,7 @@ const HeaderVertical: FunctionComponent<IHeaderVerticalProps> = ({
                   return (
                     <HeaderCell
                       key={`vertical-header-cell-${keyIndex}`}
-                      className={cls(
-                        keyIndex > selectionStart &&
-                          keyIndex <= selectionEnd + 1
-                          ? "selection"
-                          : "",
-                        `vertical-header-cell-${keyIndex}`
-                      )}
+                      className={`vertical-header-cell-${keyIndex}`}
                       type={DirectionType.Virtual}
                       value={`${keyIndex}`}
                     />

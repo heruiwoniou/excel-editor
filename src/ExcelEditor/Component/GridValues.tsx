@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from "react";
-import _ from "lodash";
 import styled from "styled-components";
 import {
   SheetRowsCount,
@@ -19,40 +18,29 @@ const GridValues: FunctionComponent<IGridValuesProps> = ({
   pageCellIndex
 }) => {
   const [state] = useStore();
-  const hasValueRowArray = _.chain(state.data)
-    .keys()
-    .map(value => ~~value.split(/:/)[1])
-    .flatten()
-    .value();
-  const hasValueCellArray = _.chain(state.data)
-    .keys()
-    .map(value => ~~value.split(/:/)[0])
-    .flatten()
-    .value();
   return (
     <GridValuesContainer>
       {new Array(SheetRowsCount).fill(null).map((value, rowIndex) => {
         let rowNumber = pageRowIndex * SheetRowsCount + rowIndex + 1;
         return (
           <GridRow key={`grid-value-row-${rowNumber}`}>
-            {hasValueRowArray.includes(rowNumber) &&
-              new Array(SheetCellsCount).fill(null).map((value, cellIndex) => {
-                let cellNumber =
-                  pageCellIndex * SheetCellsCount + cellIndex + 1;
-                return (
-                  hasValueCellArray.includes(cellNumber) && (
-                    <GridCell
-                      key={`${cellNumber}:${rowNumber}`}
-                      data-key={`${cellNumber}:${rowNumber}`}
-                      style={{
-                        left: `${cellIndex * CellWidth}px`
-                      }}
-                    >
-                      {state.data[`${cellNumber}:${rowNumber}`]}
-                    </GridCell>
-                  )
-                );
-              })}
+            {new Array(SheetCellsCount).fill(null).map((value, cellIndex) => {
+              let cellNumber = pageCellIndex * SheetCellsCount + cellIndex + 1;
+              let data = state.data[`${cellNumber}:${rowNumber}`]
+              return (
+                data && (
+                  <GridCell
+                    key={`${cellNumber}:${rowNumber}`}
+                    data-key={`${cellNumber}:${rowNumber}`}
+                    style={{
+                      left: `${cellIndex * CellWidth}px`
+                    }}
+                  >
+                    {data.value}
+                  </GridCell>
+                )
+              );
+            })}
           </GridRow>
         );
       })}

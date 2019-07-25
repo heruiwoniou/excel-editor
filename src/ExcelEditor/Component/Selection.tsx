@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import styled, { css } from "styled-components";
 import { CellWidth, CellHeight } from "../Constants";
-import { ISelectionProps, calcStyle } from "../Common";
+import { ISelectionProps } from "../Common";
 import { trim } from "../../common/utils";
 import useStore from "../../store";
 
@@ -23,23 +23,18 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
   isInputMode,
   exitInputMode,
   startRowIndex,
-  endRowIndex,
-  startCellIndex,
-  endCellIndex
+  startCellIndex
 }) => {
   const ref = useRef<HTMLInputElement>(null);
   const [
     {
-      data: { [`${startCellIndex + 1}:${startRowIndex + 1}`]: inputValue = "" }
+      data: {
+        [`${startCellIndex + 1}:${startRowIndex + 1}`]: {
+          value: inputValue = ""
+        } = { value: "" }
+      }
     }
   ] = useStore();
-
-  const style = calcStyle({
-    startRowIndex,
-    endRowIndex,
-    startCellIndex,
-    endCellIndex
-  });
 
   const handleBlur = useCallback(
     (e: FocusEvent) => {
@@ -60,7 +55,7 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
 
   return (
     <>
-      <SelectionContainer ref={selectionRef} style={style}>
+      <SelectionContainer ref={selectionRef} style={{ left: -9999 }}>
         <SelectionBorder>
           <SelectionInnerBorder />
         </SelectionBorder>

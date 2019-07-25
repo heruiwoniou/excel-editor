@@ -1,6 +1,5 @@
 import React, { FunctionComponent } from "react";
 import styled from "styled-components";
-import cls from "classnames";
 import {
   PageHorizontalSize,
   DirectionType,
@@ -30,12 +29,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
 }) => {
   return (
     <HeaderHorizontalContainer>
-      <HeaderCorner
-        className={cls(
-          "header-corner",
-          selectionStart === 0 || selectionEnd === 0 ? "selection" : ""
-        )}
-      />
+      <HeaderCorner className={"header-corner"} />
       <HeaderContainer ref={headerRef}>
         <div
           style={{
@@ -73,13 +67,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                           return (
                             <HeaderCell
                               key={`horizontal-header-cell-${keyIndex}`}
-                              className={cls(
-                                keyIndex > selectionStart &&
-                                  keyIndex <= selectionEnd + 1
-                                  ? "selection"
-                                  : "",
-                                `horizontal-header-cell-${keyIndex}`
-                              )}
+                              className={`horizontal-header-cell-${keyIndex}`}
                               type={DirectionType.Horizontal}
                               value={`${keyIndex}`}
                             />
@@ -99,12 +87,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                 return (
                   <HeaderCell
                     key={`horizontal-header-cell-${keyIndex}`}
-                    className={cls(
-                      keyIndex > selectionStart && keyIndex <= selectionEnd + 1
-                        ? "selection"
-                        : "",
-                      `horizontal-header-cell-${keyIndex}`
-                    )}
+                    className={`horizontal-header-cell-${keyIndex}`}
                     type={DirectionType.Horizontal}
                     value={`${keyIndex}`}
                   />
@@ -128,13 +111,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                         return (
                           <HeaderCell
                             key={`horizontal-header-cell-${keyIndex}`}
-                            className={cls(
-                              keyIndex > selectionStart &&
-                                keyIndex <= selectionEnd + 1
-                                ? "selection"
-                                : "",
-                              `horizontal-header-cell-${keyIndex}`
-                            )}
+                            className={`horizontal-header-cell-${keyIndex}`}
                             type={DirectionType.Horizontal}
                             value={`${keyIndex}`}
                           />

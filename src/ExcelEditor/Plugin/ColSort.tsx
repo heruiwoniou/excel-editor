@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from "react";
+import _ from "lodash";
 import pluginSortAsc from "../../assets/plugin-sort-asc.svg";
 import pluginSortDesc from "../../assets/plugin-sort-desc.svg";
 import {
@@ -10,7 +11,7 @@ import {
   IPluginProps
 } from "../Component/Toolbar";
 import { PLUGIN_TYPE } from "../Plugin";
-import { IState, IAction } from "../../store";
+import { IState, IAction, IData } from "../../store";
 
 const getDisable = ({ isInputMode }: IPluginProps) => {
   return isInputMode;
@@ -29,7 +30,7 @@ const DisposeHandler = (
     ...state.data
   };
 
-  let arr: number[][] = [];
+  let arr: Array<Array<IData>> = [];
   let colStart = startCellIndex + 1;
   let colEnd = endCellIndex + 1;
   let rowStart = startRowIndex + 1;
@@ -40,9 +41,9 @@ const DisposeHandler = (
     let colarr = [];
     for (let row = rowStart; row <= rowEnd; row++) {
       let value = d[`${col}:${row}`];
-      value && colarr.push(isNaN(Number(value)) ? value : Number(value));
+      value && colarr.push(value);
     }
-    colarr.sort();
+    colarr = _.sortBy(colarr, ['value']);
     if (desc) {
       colarr.reverse();
     }

@@ -13,8 +13,19 @@ export enum ActionType {
   Delete = "delete"
 }
 
+export enum DataType {
+  Number,
+  String,
+  Function
+}
+
+export interface IData {
+  type: DataType;
+  value: string;
+}
+
 export interface IState {
-  data: { [key: string]: any };
+  data: { [key: string]: IData };
   settings: {
     plugins: string[];
   };
@@ -37,7 +48,7 @@ const reducer: React.Reducer<IState, IAction> = (state, action) => {
   switch (action.type) {
     case ActionType.Update:
       let key = action.payload.key as string;
-      let value = action.payload.value as string;
+      let value = action.payload.value as IData;
       return {
         ...state,
         data: {

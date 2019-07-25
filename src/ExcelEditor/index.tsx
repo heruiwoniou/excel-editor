@@ -16,7 +16,7 @@ import HorizontalHeader from "./Component/HeaderHorizontal";
 import VerticalHeader from "./Component/HeaderVertical";
 import Selection, { ISelection } from "./Component/Selection";
 import Toolbar from "./Component/Toolbar";
-import useStore, { ActionType } from "../store";
+import useStore, { ActionType, DataType } from "../store";
 import {
   useVirtualScrollEffect,
   useSelectionEffect,
@@ -121,11 +121,15 @@ const VirtualBox: React.FC = (...rest: any) => {
     (value: string, rowNumber: number, cellNumber: number) => {
       setInputMode(false);
       if (value) {
+        let isNumber = !isNaN(Number(value));
         dispatch({
           type: ActionType.Update,
           payload: {
             key: `${cellNumber}:${rowNumber}`,
-            value
+            value: {
+              type: isNumber ? DataType.Number : DataType.String,
+              value: isNumber ? Number(value) : value
+            }
           }
         });
       } else {

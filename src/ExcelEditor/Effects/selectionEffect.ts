@@ -28,55 +28,7 @@ const useSelectionEffect = (
     let cacheOnselectstart: any;
     let checkInputMode = () => !!document.querySelector(".edit-mode-input");
 
-    let mouseDownHandler = (e: MouseEvent) => {
-      let scrollTop = el ? el.scrollTop : 0;
-      let scrollLeft = el ? el.scrollLeft : 0;
-      cacheOnselectstart = document.onselectstart;
-      document.onselectstart = () => false;
-
-      sCellIndex = eCellIndex = Math.floor(
-        (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
-      );
-      sRowIndex = eRowIndex = Math.floor(
-        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) /
-          CellHeight
-      );
-      setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
-      document.removeEventListener("mouseup", mouseUpHandler);
-      document.removeEventListener("mousemove", mouseMoveHandler);
-      document.addEventListener("mousemove", mouseMoveHandler);
-      document.addEventListener("mouseup", mouseUpHandler);
-    };
-    let mouseUpHandler = (e: MouseEvent) => {
-      if (checkInputMode()) return;
-      document.onselectstart = cacheOnselectstart;
-      document.removeEventListener("mouseup", mouseUpHandler);
-      document.removeEventListener("mousemove", mouseMoveHandler);
-      setSelection([
-        isVReverse ? eRowIndex : sRowIndex,
-        isHReverse ? eCellIndex : sCellIndex,
-        isVReverse ? sRowIndex : eRowIndex,
-        isHReverse ? sCellIndex : eCellIndex
-      ]);
-    };
-    let mouseMoveHandler = (e: MouseEvent) => {
-      if (checkInputMode()) return;
-      let scrollTop = el ? el.scrollTop : 0;
-      let scrollLeft = el ? el.scrollLeft : 0;
-      eCellIndex = Math.floor(
-        (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
-      );
-      eRowIndex = Math.floor(
-        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) /
-          CellHeight
-      );
-
-      eRowIndex = eRowIndex < 0 ? 0 : eRowIndex;
-      eCellIndex = eCellIndex < 0 ? 0 : eCellIndex;
-
-      isHReverse = eCellIndex < sCellIndex;
-      isVReverse = eRowIndex < sRowIndex;
-
+    let realTimeRender = () => {
       let { top, left, width, height } = calcStyle({
         startRowIndex: isVReverse ? eRowIndex : sRowIndex,
         endRowIndex: isVReverse ? sRowIndex : eRowIndex,
@@ -140,6 +92,61 @@ const useSelectionEffect = (
       );
     };
 
+    let mouseDownHandler = (e: MouseEvent) => {
+      isHReverse = false;
+      isVReverse = false;
+      let scrollTop = el ? el.scrollTop : 0;
+      let scrollLeft = el ? el.scrollLeft : 0;
+      cacheOnselectstart = document.onselectstart;
+      document.onselectstart = () => false;
+
+      sCellIndex = eCellIndex = Math.floor(
+        (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
+      );
+      sRowIndex = eRowIndex = Math.floor(
+        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) /
+          CellHeight
+      );
+      setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
+      realTimeRender();
+      document.removeEventListener("mouseup", mouseUpHandler);
+      document.removeEventListener("mousemove", mouseMoveHandler);
+      document.addEventListener("mousemove", mouseMoveHandler);
+      document.addEventListener("mouseup", mouseUpHandler);
+    };
+    let mouseUpHandler = (e: MouseEvent) => {
+      if (checkInputMode()) return;
+      document.onselectstart = cacheOnselectstart;
+      document.removeEventListener("mouseup", mouseUpHandler);
+      document.removeEventListener("mousemove", mouseMoveHandler);
+      setSelection([
+        isVReverse ? eRowIndex : sRowIndex,
+        isHReverse ? eCellIndex : sCellIndex,
+        isVReverse ? sRowIndex : eRowIndex,
+        isHReverse ? sCellIndex : eCellIndex
+      ]);
+    };
+    let mouseMoveHandler = (e: MouseEvent) => {
+      if (checkInputMode()) return;
+      let scrollTop = el ? el.scrollTop : 0;
+      let scrollLeft = el ? el.scrollLeft : 0;
+      eCellIndex = Math.floor(
+        (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
+      );
+      eRowIndex = Math.floor(
+        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) /
+          CellHeight
+      );
+
+      eRowIndex = eRowIndex < 0 ? 0 : eRowIndex;
+      eCellIndex = eCellIndex < 0 ? 0 : eCellIndex;
+
+      isHReverse = eCellIndex < sCellIndex;
+      isVReverse = eRowIndex < sRowIndex;
+
+      realTimeRender();
+    };
+
     el && el.addEventListener("mousedown", mouseDownHandler);
     return () => {
       el && el.removeEventListener("mousedown", mouseDownHandler);
@@ -148,8 +155,9 @@ const useSelectionEffect = (
 
   useEffect(() => {
     let handler = (e: KeyboardEvent) => {
+      let keyCode = e.keyCode;
       let el = e.target as HTMLElement;
-      if ([8, 46].includes(e.keyCode) && el.nodeName !== "INPUT") {
+      if ([8, 46].includes(keyCode) && el.nodeName !== "INPUT") {
         deleteSelection();
       }
     };
