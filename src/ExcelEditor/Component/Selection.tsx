@@ -5,16 +5,10 @@ import React, {
   useRef
 } from "react";
 import styled, { css } from "styled-components";
-import { CellWidth, CellHeight } from "./constants";
-import { trim } from "../common/utils";
-import useStore from "../store";
-
-interface ISelectionProps {
-  startRowIndex: number;
-  endRowIndex: number;
-  startCellIndex: number;
-  endCellIndex: number;
-}
+import { CellWidth, CellHeight } from "../Constants";
+import { ISelectionProps, calcStyle } from '../Common';
+import { trim } from "../../common/utils";
+import useStore from "../../store";
 
 interface ISelectionRefProps {
   selectionRef: React.RefObject<HTMLDivElement>;
@@ -22,18 +16,6 @@ interface ISelectionRefProps {
   exitInputMode: (value: string, rowIndex: number, cellIndex: number) => void;
 }
 
-export const calcStyle = ({
-  startRowIndex,
-  endRowIndex,
-  startCellIndex,
-  endCellIndex
-}: ISelectionProps) => ({
-  display: startRowIndex === -1 ? "none" : "block",
-  top: startRowIndex * CellHeight,
-  left: startCellIndex * CellWidth,
-  width: (Math.abs(endCellIndex - startCellIndex) + 1) * CellWidth,
-  height: (Math.abs(endRowIndex - startRowIndex) + 1) * CellHeight
-});
 
 const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
   selectionRef,
@@ -65,6 +47,7 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
         exitInputMode(trim(input.value), startRowIndex + 1, startCellIndex + 1);
       }
     },
+    // eslint-disable-next-line
     [isInputMode]
   );
 

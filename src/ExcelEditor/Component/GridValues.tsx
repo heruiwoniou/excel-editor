@@ -6,8 +6,8 @@ import {
   SheetCellsCount,
   CellHeight,
   CellWidth
-} from "./constants";
-import useStore from "../store";
+} from "../Constants";
+import useStore from "../../store";
 
 interface IGridValuesProps {
   pageRowIndex: number;

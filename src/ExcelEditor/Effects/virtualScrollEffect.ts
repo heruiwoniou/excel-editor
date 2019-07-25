@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { PageVerticalSize, PageHorizontalSize } from "./../constants";
+import { PageVerticalSize, PageHorizontalSize } from "../Constants";
 
 const useVirtualScrollEffect = (
   ref: React.RefObject<HTMLElement>,

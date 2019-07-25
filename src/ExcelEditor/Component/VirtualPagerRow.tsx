@@ -5,7 +5,7 @@ import {
   PageVerticalSize,
   PageHorizontalSize,
   DirectionType
-} from "./constants";
+} from "../Constants";
 import PlaceHolder from "./PlaceHolder";
 import VirtualPagerCell from "./VirtualPagerCell";
 

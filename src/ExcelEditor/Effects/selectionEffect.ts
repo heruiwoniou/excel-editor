@@ -4,8 +4,8 @@ import {
   HeaderHorizontalSize,
   CellWidth,
   CellHeight
-} from "../constants";
-import { calcStyle } from "../Selection";
+} from "../Constants";
+import { calcStyle } from "../Common";
 import { addClass, removeClass, forEach } from "../../common/utils";
 
 const useSelectionEffect = (

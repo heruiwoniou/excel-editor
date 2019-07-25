@@ -8,19 +8,19 @@ import {
   RearLoadCountDefault,
   DirectionType,
   HeaderHorizontalSize
-} from "./constants";
-import PlaceHolder from "./PlaceHolder";
-import VirtualPagerRow from "./VirtualPagerRow";
-import HorizontalHeader from "./HeaderHorizontal";
-import VerticalHeader from "./HeaderVertical";
-import Selection from "./Selection";
+} from "./Constants";
+import PlaceHolder from "./Component/PlaceHolder";
+import VirtualPagerRow from "./Component/VirtualPagerRow";
+import HorizontalHeader from "./Component/HeaderHorizontal";
+import VerticalHeader from "./Component/HeaderVertical";
+import Selection from "./Component/Selection";
 import useStore, { ActionType } from "../store";
 import {
   useVirtualScrollEffect,
   useSelectionEffect,
   useModeChangeEffect,
   useResizeEffect
-} from "./effects";
+} from "./Effects";
 
 const VirtualBox: React.FC = (...rest: any) => {
   const [, dispatch] = useStore();
@@ -118,7 +118,7 @@ const VirtualBox: React.FC = (...rest: any) => {
   const exitInputMode = useCallback(
     (value: string, rowNumber: number, cellNumber: number) => {
       setInputMode(false);
-      value &&
+      if (value) {
         dispatch({
           type: ActionType.Update,
           payload: {
@@ -126,8 +126,16 @@ const VirtualBox: React.FC = (...rest: any) => {
             value
           }
         });
+      } else {
+        dispatch({
+          type: ActionType.Delete,
+          payload: {
+            keys: [`${cellNumber}:${rowNumber}`]
+          }
+        });
+      }
     },
-    []
+    [dispatch]
   );
 
   const deleteSelection = useCallback(() => {
@@ -144,7 +152,7 @@ const VirtualBox: React.FC = (...rest: any) => {
           keys
         }
       });
-  }, [startRowIndex, endRowIndex, startCellIndex, endCellIndex]);
+  }, [startRowIndex, endRowIndex, startCellIndex, endCellIndex, dispatch]);
 
   useVirtualScrollEffect(
     ref,

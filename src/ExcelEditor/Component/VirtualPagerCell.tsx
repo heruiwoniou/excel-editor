@@ -8,7 +8,7 @@ import {
   CellHeight,
   SheetRowsCount,
   SheetCellsCount
-} from "./constants";
+} from "../Constants";
 import GridHorizontalLine from "./GridHorizontalLine";
 import GridVirtualLine from "./GridVirtualLine";
 import GridValues from "./GridValues";

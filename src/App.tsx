@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import VirtualBox from "./VirtualBox";
-import { GlobalStyle } from "./themes/globalStyles";
+import ExcelEditor from "./ExcelEditor";
+import { GlobalStyle } from "./themes/GlobalStyles";
 import { DataProvider } from "./store";
 
 const App: React.FC = () => {
@@ -10,7 +10,7 @@ const App: React.FC = () => {
       <GlobalStyle />
       <AppContainer>
         <DataProvider>
-          <VirtualBox />
+          <ExcelEditor />
         </DataProvider>
       </AppContainer>
     </>

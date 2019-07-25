@@ -5,7 +5,7 @@ import {
   CellHeight,
   CellWidth,
   HeaderHorizontalSize
-} from "./constants";
+} from "../Constants";
 
 interface IHeaderCellProps {
   type: DirectionType;

@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from "react";
 import styled from "styled-components";
-import { DirectionType } from "./constants";
+import { DirectionType } from "../Constants";
 
 interface IPlaceHolder {
   size: number;

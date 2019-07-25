@@ -1,6 +1,6 @@
 import { useEffect, RefObject } from "react";
 import { throttle } from "lodash";
-import { PageHorizontalSize, PageVerticalSize } from "../constants";
+import { PageHorizontalSize, PageVerticalSize } from "../Constants";
 
 const useResizeEffect = (
   ref: RefObject<HTMLElement>,

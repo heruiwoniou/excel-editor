@@ -7,8 +7,8 @@ import {
   HeaderVerticalSize,
   HeaderHorizontalSize,
   SheetCellsCount
-} from "./constants";
-import { defaultScrollWidth } from "../common/utils";
+} from "../Constants";
+import { defaultScrollWidth } from "../../common/utils";
 import PlaceHolder from "./PlaceHolder";
 import HeaderCell from "./HeaderCell";
 
