@@ -6,11 +6,12 @@ import React, {
   PropsWithChildren
 } from "react";
 
-import Plugins, { PLUGIN_TYPE } from "../ExcelEditor/Plugin";
+import Plugins, { PLUGIN_TYPE, PLUGIN_ACTION } from "../ExcelEditor/Plugin";
 
 export enum ActionType {
   Update = "update",
-  Delete = "delete"
+  Delete = "delete",
+  PluginAction = "pluginAction"
 }
 
 export enum DataType {
@@ -24,23 +25,35 @@ export interface IData {
   value: string;
 }
 
-export interface IState {
+export type IState = {
   data: { [key: string]: IData };
   settings: {
     plugins: string[];
   };
-}
+  [key: string]: any;
+};
 
 export interface IAction {
-  type: ActionType | PLUGIN_TYPE;
-  payload: { [key: string]: any };
+  type: ActionType;
+  payload: {
+    pluginType?: PLUGIN_TYPE;
+    pluginAction?: PLUGIN_ACTION;
+    [key: string]: any;
+  };
 }
+
+let pluginState = {};
+
+Object.keys(Plugins).forEach(type => {
+  pluginState = { ...pluginState, ...Plugins[type as PLUGIN_TYPE].state };
+});
 
 const initialState: IState = {
   data: {},
   settings: {
     plugins: [PLUGIN_TYPE.FUNCTION, PLUGIN_TYPE.COL_SORT, PLUGIN_TYPE.ROW_SORT]
-  }
+  },
+  ...pluginState
 };
 
 const reducer: React.Reducer<IState, IAction> = (state, action) => {
@@ -65,10 +78,11 @@ const reducer: React.Reducer<IState, IAction> = (state, action) => {
         }
       });
       return newData;
-    case PLUGIN_TYPE.COL_SORT:
-      return Plugins[PLUGIN_TYPE.COL_SORT].DisposeHandler(state, action);
-    case PLUGIN_TYPE.ROW_SORT:
-      return Plugins[PLUGIN_TYPE.ROW_SORT].DisposeHandler(state, action);
+    case ActionType.PluginAction:
+      return Plugins[action.payload.pluginType as PLUGIN_TYPE].reducer(
+        state,
+        action
+      );
     default:
       throw new Error();
   }
@@ -82,6 +96,8 @@ const DataContext = React.createContext<[IState, Dispatch<IAction>]>([
 export const DataProvider: FunctionComponent<PropsWithChildren<{}>> = ({
   children
 }) => {
+  let pluginState = {};
+
   const contextValue = useReducer<React.Reducer<IState, IAction>>(
     reducer,
     initialState

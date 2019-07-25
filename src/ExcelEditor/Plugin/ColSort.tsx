@@ -17,12 +17,21 @@ const getDisable = ({ isInputMode }: IPluginProps) => {
   return isInputMode;
 };
 
-const DisposeHandler = (
+const state = {};
+
+export type pluginaction = "COL_SORT_DEFAULT_ACTION" | "COL_SORT_DEFAULT_ACTION_DESC"
+
+const action = {
+  COL_SORT_DEFAULT_ACTION: "COL_SORT_DEFAULT_ACTION",
+  COL_SORT_DEFAULT_ACTION_DESC: "COL_SORT_DEFAULT_ACTION_DESC"
+};
+
+const reducer = (
   state: IState,
   {
     payload: {
-      selection: [startRowIndex, startCellIndex, endRowIndex, endCellIndex],
-      extra: { desc }
+      pluginAction,
+      selection: [startRowIndex, startCellIndex, endRowIndex, endCellIndex]
     }
   }: IAction
 ) => {
@@ -43,8 +52,8 @@ const DisposeHandler = (
       let value = d[`${col}:${row}`];
       value && colarr.push(value);
     }
-    colarr = _.sortBy(colarr, ['value']);
-    if (desc) {
+    colarr = _.sortBy(colarr, ["value"]);
+    if (pluginAction === action.COL_SORT_DEFAULT_ACTION_DESC) {
       colarr.reverse();
     }
     arr.push(colarr);
@@ -75,7 +84,10 @@ const Component: FunctionComponent<IPluginProps> = props => {
       <ToolbarCellContainerHeader>列</ToolbarCellContainerHeader>
       <ToolbarCell
         disable={isDisable}
-        onClick={props.action(PLUGIN_TYPE.COL_SORT, { desc: false })}
+        onClick={props.action(
+          PLUGIN_TYPE.COL_SORT,
+          action.COL_SORT_DEFAULT_ACTION
+        )}
       >
         <IconsContainer size={[16, 16]}>
           <IconsImage src={pluginSortAsc} />
@@ -84,7 +96,10 @@ const Component: FunctionComponent<IPluginProps> = props => {
       </ToolbarCell>
       <ToolbarCell
         disable={isDisable}
-        onClick={props.action(PLUGIN_TYPE.COL_SORT, { desc: true })}
+        onClick={props.action(
+          PLUGIN_TYPE.COL_SORT,
+          action.COL_SORT_DEFAULT_ACTION_DESC
+        )}
       >
         <IconsContainer size={[16, 16]}>
           <IconsImage src={pluginSortDesc} />
@@ -97,5 +112,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
 
 export default {
   Component,
-  DisposeHandler
+  state,
+  reducer,
+  action
 };

@@ -17,12 +17,21 @@ const getDisable = ({ isInputMode }: IPluginProps) => {
   return isInputMode;
 };
 
-const DisposeHandler = (
+const state = {};
+
+export type pluginaction = "ROW_SORT_DEFAULT_ACTION" | "ROW_SORT_DEFAULT_ACTION_DESC"
+
+const action = {
+  ROW_SORT_DEFAULT_ACTION: "ROW_SORT_DEFAULT_ACTION",
+  ROW_SORT_DEFAULT_ACTION_DESC: "ROW_SORT_DEFAULT_ACTION_DESC"
+};
+
+const reducer = (
   state: IState,
   {
     payload: {
-      selection: [startRowIndex, startCellIndex, endRowIndex, endCellIndex],
-      extra: { desc }
+      pluginAction,
+      selection: [startRowIndex, startCellIndex, endRowIndex, endCellIndex]
     }
   }: IAction
 ) => {
@@ -44,7 +53,7 @@ const DisposeHandler = (
       value && rowarr.push(value);
     }
     rowarr = _.sortBy(rowarr, ['value']);
-    if (desc) {
+    if (pluginAction === action.ROW_SORT_DEFAULT_ACTION_DESC) {
       rowarr.reverse();
     }
     arr.push(rowarr);
@@ -75,7 +84,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
       <ToolbarCellContainerHeader>行</ToolbarCellContainerHeader>
       <ToolbarCell
         disable={isDisable}
-        onClick={props.action(PLUGIN_TYPE.ROW_SORT, { desc: false })}
+        onClick={props.action(PLUGIN_TYPE.ROW_SORT, action.ROW_SORT_DEFAULT_ACTION)}
       >
         <IconsContainer size={[16, 16]}>
           <IconsImage src={pluginSortAsc} />
@@ -84,7 +93,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
       </ToolbarCell>
       <ToolbarCell
         disable={isDisable}
-        onClick={props.action(PLUGIN_TYPE.ROW_SORT, { desc: true })}
+        onClick={props.action(PLUGIN_TYPE.ROW_SORT, action.ROW_SORT_DEFAULT_ACTION_DESC)}
       >
         <IconsContainer size={[16, 16]}>
           <IconsImage src={pluginSortDesc} />
@@ -97,5 +106,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
 
 export default {
   Component,
-  DisposeHandler
+  state,
+  reducer,
+  action
 };

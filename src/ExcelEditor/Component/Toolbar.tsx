@@ -2,8 +2,8 @@ import React, { FunctionComponent, useCallback } from "react";
 import styled, { css } from "styled-components";
 import cls from "classnames";
 import { ToolBarCellWidth, ToolBarHeight } from "../Constants";
-import Plugins, { PLUGIN_TYPE } from "../Plugin";
-import useStore from "../../store";
+import Plugins, { PLUGIN_TYPE, PLUGIN_ACTION } from "../Plugin";
+import useStore, { ActionType } from "../../store";
 
 export interface IToolbarProps {
   isInputMode: boolean;
@@ -12,7 +12,8 @@ export interface IToolbarProps {
 
 export interface IPluginProps extends IToolbarProps {
   action: (
-    type: PLUGIN_TYPE,
+    pluginType: PLUGIN_TYPE,
+    pluginAction: PLUGIN_ACTION,
     extra?: { [key: string]: any }
   ) => (e: MouseEvent) => void;
 }
@@ -29,10 +30,12 @@ const Toolbar: FunctionComponent<IToolbarProps> = ({
   ] = useStore();
 
   const action = useCallback(
-    (type, extra) => (e: MouseEvent) => {
+    (pluginType, pluginAction, extra) => (e: MouseEvent) => {
       dispatch({
-        type: type as PLUGIN_TYPE,
+        type: ActionType.PluginAction,
         payload: {
+          pluginType,
+          pluginAction,
           extra,
           selection
         }
