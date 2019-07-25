@@ -1,15 +1,35 @@
-import React from "react";
+import React, { FunctionComponent } from "react";
 
 import pluginFunction from "../../assets/plugin-function.svg";
-import { ToolbarCell, IconsContainer, IconsImage } from "../Component/Toolbar";
+import {
+  ToolbarCell,
+  IconsContainer,
+  IconsImage,
+  IPluginProps
+} from "../Component/Toolbar";
+import { IState, IAction } from "../../store";
 
-export default {
-  button: (
-    <ToolbarCell>
-      <IconsContainer size={[16, 16]}>
+const getDisable = ({ isInputMode }: IPluginProps) => {
+  return isInputMode;
+};
+
+const DisposeHandler = (state: IState, action: IAction) => {
+  return state;
+};
+
+const Component: FunctionComponent<IPluginProps> = props => {
+  const isDisable = getDisable(props);
+  return (
+    <ToolbarCell disable={isDisable}>
+      <IconsContainer size={[32, 32]}>
         <IconsImage src={pluginFunction} />
       </IconsContainer>
       插入函数
     </ToolbarCell>
-  )
+  );
+};
+
+export default {
+  Component,
+  DisposeHandler
 };

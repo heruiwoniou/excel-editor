@@ -1,90 +1,63 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useCallback } from "react";
 import styled, { css } from "styled-components";
+import cls from "classnames";
 import { ToolBarCellWidth, ToolBarHeight } from "../Constants";
+import Plugins, { PLUGIN_TYPE } from "../Plugin";
+import useStore from "../../store";
 
-enum ImageType {
-  FUNCTION,
-  ROW_ASCENDING,
-  ROW_DESCENDING,
-  COl_ASCENDING,
-  COL_DESCENDING
+export interface IToolbarProps {
+  isInputMode: boolean;
+  selection?: [number, number, number, number];
 }
 
-const ImagesMap = {
-  [ImageType.FUNCTION]: {
-    size: [32, 32],
-    src: [-69, -301]
-  },
-  [ImageType.ROW_ASCENDING]: {
-    size: [16, 16],
-    position: [-137, -53]
-  },
-  [ImageType.ROW_DESCENDING]: {
-    size: [16, 16],
-    position: [-137, -71]
-  },
-  [ImageType.COl_ASCENDING]: {
-    size: [16, 16],
-    position: [-137, -53]
-  },
-  [ImageType.COL_DESCENDING]: {
-    size: [16, 16],
-    position: [-137, -71]
-  }
-};
+export interface IPluginProps extends IToolbarProps {
+  action: (
+    type: PLUGIN_TYPE,
+    extra?: { [key: string]: any }
+  ) => (e: MouseEvent) => void;
+}
 
-interface IToolbarProps {}
-const Toolbar: FunctionComponent<IToolbarProps> = props => {
+const Toolbar: FunctionComponent<IToolbarProps> = ({
+  isInputMode,
+  selection
+}) => {
+  const [
+    {
+      settings: { plugins }
+    },
+    dispatch
+  ] = useStore();
+
+  const action = useCallback(
+    (type, extra) => (e: MouseEvent) => {
+      dispatch({
+        type: type as PLUGIN_TYPE,
+        payload: {
+          extra,
+          selection
+        }
+      });
+    },
+    [dispatch, selection]
+  );
+
   return (
     <ToolbarContainer>
-      <ToolbarSplitLine />
-      <ToolbarCell>
-        <IconsContainer size={ImagesMap[ImageType.FUNCTION].size}>
-          <FuncIconsImage position={ImagesMap[ImageType.FUNCTION].position} />
-        </IconsContainer>
-        插入函数
-      </ToolbarCell>
-      <ToolbarSplitLine />
-      <ToolbarCellContainer>
-        <ToolbarCellContainerHeader>列</ToolbarCellContainerHeader>
-        <ToolbarCell>
-          <IconsContainer size={ImagesMap[ImageType.COl_ASCENDING].size}>
-            <SortIconsImage
-              position={ImagesMap[ImageType.COl_ASCENDING].position}
+      {plugins.map(type => {
+        const { Component } = Plugins[type as PLUGIN_TYPE];
+        return (
+          <React.Fragment key={`fragment-${type}`}>
+            <ToolbarSplitLine key={`line-${type}`} />
+            <Component
+              action={action}
+              isInputMode={isInputMode}
+              selection={selection}
+              key={`button-${type}`}
             />
-          </IconsContainer>
-          升序排序
-        </ToolbarCell>
-        <ToolbarCell>
-          <IconsContainer size={ImagesMap[ImageType.COL_DESCENDING].size}>
-            <SortIconsImage
-              position={ImagesMap[ImageType.COL_DESCENDING].position}
-            />
-          </IconsContainer>
-          降序排序
-        </ToolbarCell>
-      </ToolbarCellContainer>
-      <ToolbarSplitLine />
-      <ToolbarCellContainer>
-        <ToolbarCellContainerHeader>行</ToolbarCellContainerHeader>
-        <ToolbarCell>
-          <IconsContainer size={ImagesMap[ImageType.ROW_ASCENDING].size}>
-            <SortIconsImage
-              position={ImagesMap[ImageType.ROW_ASCENDING].position}
-            />
-          </IconsContainer>
-          升序排序
-        </ToolbarCell>
-        <ToolbarCell>
-          <IconsContainer size={ImagesMap[ImageType.ROW_DESCENDING].size}>
-            <SortIconsImage
-              position={ImagesMap[ImageType.ROW_DESCENDING].position}
-            />
-          </IconsContainer>
-          降序排序
-        </ToolbarCell>
-      </ToolbarCellContainer>
-      <ToolbarSplitLine />
+          </React.Fragment>
+        );
+      })}
+      <ToolbarSplitLine key={`last-line`} />
     </ToolbarContainer>
   );
 };
@@ -94,7 +67,7 @@ export default Toolbar;
 const ToolbarContainer: any = styled.div`
   height: ${ToolBarHeight}px;
   display: grid;
-  grid-template-columns: repeat(auto-fill,  1px ${ToolBarCellWidth}px);
+  grid-template-columns: repeat(auto-fill, 1px ${ToolBarCellWidth}px);
   grid-column-gap: 2px;
   padding: 2px;
   box-sizing: border-box;
@@ -113,7 +86,11 @@ export const ToolbarCellContainerHeader: any = styled.div`
   border-bottom: 1px solid #ccc;
 `;
 
-export const ToolbarCell: any = styled.div`
+export const ToolbarCell: any = styled.div.attrs(
+  ({ disable }: { disable: boolean }) => ({
+    className: cls(disable ? "disable" : "")
+  })
+)`
   cursor: pointer;
   text-align: center;
   display: flex;
@@ -125,6 +102,15 @@ export const ToolbarCell: any = styled.div`
   &:hover {
     background: #efefef;
     border: 1px solid #ccc;
+  }
+
+  &.disable {
+    opacity: 0.5;
+    cursor: not-allowed;
+    &:hover {
+      background: white;
+      border: 1px solid transparent;
+    }
   }
 `;
 
@@ -141,6 +127,7 @@ export const ToolbarCellContainer: any = styled.div`
 export const IconsContainer: any = styled.div<{ size: number[] }>`
   overflow: hidden;
   position: relative;
+  margin: 5px;
   ${({ size: [width, height] }) => css`
     width: ${width}px;
     height: ${height}px;
@@ -150,6 +137,7 @@ export const IconsImage: any = styled.img.attrs(({ src }) => ({
   src: src
 }))`
   position: absolute;
+  width: 100%;
   top: 0px;
   left: 0px;
 `;

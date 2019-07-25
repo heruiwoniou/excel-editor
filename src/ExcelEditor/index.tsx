@@ -14,7 +14,7 @@ import PlaceHolder from "./Component/PlaceHolder";
 import VirtualPagerRow from "./Component/VirtualPagerRow";
 import HorizontalHeader from "./Component/HeaderHorizontal";
 import VerticalHeader from "./Component/HeaderVertical";
-import Selection from "./Component/Selection";
+import Selection, { ISelection } from "./Component/Selection";
 import Toolbar from "./Component/Toolbar";
 import useStore, { ActionType } from "../store";
 import {
@@ -27,7 +27,7 @@ import {
 const VirtualBox: React.FC = (...rest: any) => {
   const [, dispatch] = useStore();
   // Selection
-  const [selection, setSelection] = useState<number[]>([-1, -1, -1, -1]);
+  const [selection, setSelection] = useState<ISelection>([-1, -1, -1, -1]);
   const [isInputMode, setInputMode] = useState<boolean>(false);
 
   // Vertical parameters
@@ -176,7 +176,7 @@ const VirtualBox: React.FC = (...rest: any) => {
 
   return (
     <>
-      <Toolbar />
+      <Toolbar isInputMode={isInputMode} selection={selection} />
       <TableContainer>
         <HorizontalHeader {...HorizontalHeaderProps} />
         <ContentContainer>

@@ -6,16 +6,17 @@ import React, {
 } from "react";
 import styled, { css } from "styled-components";
 import { CellWidth, CellHeight } from "../Constants";
-import { ISelectionProps, calcStyle } from '../Common';
+import { ISelectionProps, calcStyle } from "../Common";
 import { trim } from "../../common/utils";
 import useStore from "../../store";
+
+export type ISelection = [number, number, number, number];
 
 interface ISelectionRefProps {
   selectionRef: React.RefObject<HTMLDivElement>;
   isInputMode: boolean;
   exitInputMode: (value: string, rowIndex: number, cellIndex: number) => void;
 }
-
 
 const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
   selectionRef,
@@ -97,8 +98,8 @@ const SelectionInnerBorder: any = styled.div`
   top: 0;
   bottom: 0;
   left: 0;
-	right: 0;
-	z-index: 1;
+  right: 0;
+  z-index: 1;
 `;
 
 const commonStyle = css`
@@ -121,14 +122,14 @@ const StyledInput: any = styled.input.attrs(props => ({
   border: 0px;
   background: #eee;
   height: 100%;
-	width: calc(100% - 1px);
+  width: calc(100% - 1px);
   margin: 0;
   line-height: ${CellHeight - 1}px;
   padding: 0 1px;
   outline: none;
   box-sizing: border-box;
-	vertical-align: top;
-	font-size: 12px;
+  vertical-align: top;
+  font-size: 12px;
 `;
 const SelectionAreaTop: any = styled.div`
   ${commonStyle}

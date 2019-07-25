@@ -6,13 +6,14 @@ import {
   CellWidth,
   CellHeight
 } from "../Constants";
+import { ISelection } from "../Component/Selection";
 import { calcStyle } from "../Common";
 import { addClass, removeClass, forEach } from "../../common/utils";
 
 const useSelectionEffect = (
   ref: RefObject<HTMLElement>,
   selectionRef: RefObject<HTMLElement>,
-  setSelection: (selection: number[]) => void,
+  setSelection: (selection: ISelection) => void,
   deleteSelection: () => void
 ) => {
   useEffect(() => {
@@ -37,7 +38,8 @@ const useSelectionEffect = (
         (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
       );
       sRowIndex = eRowIndex = Math.floor(
-        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) / CellHeight
+        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) /
+          CellHeight
       );
       setSelection([sRowIndex, sCellIndex, eRowIndex, eCellIndex]);
       document.removeEventListener("mouseup", mouseUpHandler);
@@ -65,8 +67,13 @@ const useSelectionEffect = (
         (scrollLeft + e.clientX - HeaderVerticalSize) / CellWidth
       );
       eRowIndex = Math.floor(
-        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) / CellHeight
+        (scrollTop + e.clientY - HeaderHorizontalSize - ToolBarHeight) /
+          CellHeight
       );
+
+      eRowIndex = eRowIndex < 0 ? 0 : eRowIndex;
+      eCellIndex = eCellIndex < 0 ? 0 : eCellIndex;
+
       isHReverse = eCellIndex < sCellIndex;
       isVReverse = eRowIndex < sRowIndex;
 
@@ -142,8 +149,8 @@ const useSelectionEffect = (
   useEffect(() => {
     let handler = (e: KeyboardEvent) => {
       let el = e.target as HTMLElement;
-      if (e.keyCode === 8 && el.nodeName !== "INPUT") {
-				deleteSelection();
+      if ([8, 46].includes(e.keyCode) && el.nodeName !== "INPUT") {
+        deleteSelection();
       }
     };
     document.addEventListener("keydown", handler);

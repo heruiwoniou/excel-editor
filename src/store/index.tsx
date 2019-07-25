@@ -6,22 +6,23 @@ import React, {
   PropsWithChildren
 } from "react";
 
-import { PLUGIN_TYPE } from "../ExcelEditor/Plugin";
+import Plugins, { PLUGIN_TYPE } from "../ExcelEditor/Plugin";
 
 export enum ActionType {
   Update = "update",
   Delete = "delete"
 }
 
-type IState = {
-  data: { [key: string]: string | undefined };
+export interface IState {
+  data: { [key: string]: any };
   settings: {
     plugins: string[];
   };
-};
-interface IAction {
-  type: ActionType;
-  payload: { [key: string]: string | string[] };
+}
+
+export interface IAction {
+  type: ActionType | PLUGIN_TYPE;
+  payload: { [key: string]: any };
 }
 
 const initialState: IState = {
@@ -32,6 +33,7 @@ const initialState: IState = {
 };
 
 const reducer: React.Reducer<IState, IAction> = (state, action) => {
+  let newData: IState;
   switch (action.type) {
     case ActionType.Update:
       let key = action.payload.key as string;
@@ -44,7 +46,7 @@ const reducer: React.Reducer<IState, IAction> = (state, action) => {
         }
       };
     case ActionType.Delete:
-      let newData = { ...state, data: { ...state.data } };
+      newData = { ...state, data: { ...state.data } };
       let keys = action.payload.keys as string[];
       keys.forEach(key => {
         if (newData.data[key]) {
@@ -52,6 +54,10 @@ const reducer: React.Reducer<IState, IAction> = (state, action) => {
         }
       });
       return newData;
+    case PLUGIN_TYPE.COL_SORT:
+      return Plugins[PLUGIN_TYPE.COL_SORT].DisposeHandler(state, action);
+    case PLUGIN_TYPE.ROW_SORT:
+      return Plugins[PLUGIN_TYPE.ROW_SORT].DisposeHandler(state, action);
     default:
       throw new Error();
   }
