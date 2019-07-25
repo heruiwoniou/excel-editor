@@ -118,16 +118,33 @@ const VirtualBox: React.FC = (...rest: any) => {
   const exitInputMode = useCallback(
     (value: string, rowNumber: number, cellNumber: number) => {
       setInputMode(false);
-      dispatch({
-        type: ActionType.Update,
-        payload: {
-          key: `${cellNumber}:${rowNumber}`,
-          value
-        }
-      });
+      value &&
+        dispatch({
+          type: ActionType.Update,
+          payload: {
+            key: `${cellNumber}:${rowNumber}`,
+            value
+          }
+        });
     },
     []
   );
+
+  const deleteSelection = useCallback(() => {
+    let keys = [];
+    for (let row = startRowIndex; row <= endRowIndex; row++) {
+      for (let cell = startCellIndex; cell <= endCellIndex; cell++) {
+        keys.push(`${cell + 1}:${row + 1}`);
+      }
+    }
+    keys.length &&
+      dispatch({
+        type: ActionType.Delete,
+        payload: {
+          keys
+        }
+      });
+  }, [startRowIndex, endRowIndex, startCellIndex, endCellIndex]);
 
   useVirtualScrollEffect(
     ref,
@@ -141,7 +158,7 @@ const VirtualBox: React.FC = (...rest: any) => {
     updatePageVerticalDataHander
   );
 
-  useSelectionEffect(ref, selectionRef, setSelection);
+  useSelectionEffect(ref, selectionRef, setSelection, deleteSelection);
 
   useModeChangeEffect(ref, setInputMode);
 

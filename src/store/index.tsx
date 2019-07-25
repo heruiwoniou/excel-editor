@@ -16,7 +16,7 @@ type IState = {
 };
 interface IAction {
   type: ActionType;
-  payload: { key: string; value?: string };
+  payload: { [key: string]: string | string[] };
 }
 
 const initialState: IState = { data: {} };
@@ -24,17 +24,24 @@ const initialState: IState = { data: {} };
 const reducer: React.Reducer<IState, IAction> = (state, action) => {
   switch (action.type) {
     case ActionType.Update:
+      let key = action.payload.key as string;
+      let value = action.payload.value as string;
       let d = {
         data: {
           ...state.data,
-          ...{ [action.payload.key]: action.payload.value }
+          ...{ [key]: value }
         }
       };
       return d;
     case ActionType.Delete:
-      let original = { data: { ...state.data } };
-      delete original.data[action.payload.key];
-      return original;
+      let newData = { data: { ...state.data } };
+      let keys = action.payload.keys as string[];
+      keys.forEach(key => {
+        if(newData.data[key]) {
+          delete newData.data[key]
+        }
+      });
+      return newData;
     default:
       throw new Error();
   }

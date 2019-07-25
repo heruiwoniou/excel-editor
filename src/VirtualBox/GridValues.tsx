@@ -76,9 +76,9 @@ const GridCell: any = styled.div`
   top: 0;
   width: ${CellWidth - 3}px;
   height: ${CellHeight - 1}px;
+  line-height: ${CellHeight - 1}px;
   margin: 0 2px 0 1px;
   box-sizing: border-box;
   font-size: 12px;
-  line-height: ${CellHeight}px;
   overflow: hidden;
 `;

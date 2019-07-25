@@ -51,8 +51,6 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
     }
   ] = useStore();
 
-  const [{ data }] = useStore();
-
   const style = calcStyle({
     startRowIndex,
     endRowIndex,
@@ -63,7 +61,7 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
   const handleBlur = useCallback(
     (e: FocusEvent) => {
       let input = ref.current;
-      if (input && trim(input.value)) {
+      if (input) {
         exitInputMode(trim(input.value), startRowIndex + 1, startCellIndex + 1);
       }
     },
@@ -142,10 +140,11 @@ const StyledInput: any = styled.input.attrs(props => ({
   width: calc(100% - 1px);
   margin: 0;
   line-height: 20px;
-  padding: 0 2px;
+  padding: 0 1px;
   outline: none;
   box-sizing: border-box;
-  vertical-align: top;
+	vertical-align: top;
+	font-size: 12px;
 `;
 const SelectionAreaTop: any = styled.div`
   ${commonStyle}

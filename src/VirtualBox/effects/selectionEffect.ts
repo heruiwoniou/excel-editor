@@ -11,7 +11,8 @@ import { addClass, removeClass, forEach } from "../../common/utils";
 const useSelectionEffect = (
   ref: RefObject<HTMLElement>,
   selectionRef: RefObject<HTMLElement>,
-  setSelection: (selection: number[]) => void
+  setSelection: (selection: number[]) => void,
+  deleteSelection: () => void
 ) => {
   useEffect(() => {
     let el = ref.current;
@@ -136,6 +137,19 @@ const useSelectionEffect = (
       el && el.removeEventListener("mousedown", mouseDownHandler);
     };
   }, [ref, selectionRef, setSelection]);
+
+  useEffect(() => {
+    let handler = (e: KeyboardEvent) => {
+      let el = e.target as HTMLElement;
+      if (e.keyCode === 8 && el.nodeName !== "INPUT") {
+				deleteSelection();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => {
+      document.removeEventListener("keydown", handler);
+    };
+  }, [deleteSelection]);
 };
 
 export default useSelectionEffect;
