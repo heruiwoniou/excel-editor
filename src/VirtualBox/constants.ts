@@ -1,7 +1,7 @@
 export const HeaderVerticalSize: number = 40;
 export const HeaderHorizontalSize: number = 20;
-export const CellWidth: number = 90;
-export const CellHeight: number = 25;
+export const CellWidth: number = 80;
+export const CellHeight: number = 20;
 export const SheetRowsCount: number = 50;
 export const SheetCellsCount: number = 20;
 export const PageHorizontalSize: number = CellWidth * SheetCellsCount;

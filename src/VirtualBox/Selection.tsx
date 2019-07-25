@@ -114,7 +114,8 @@ const SelectionInnerBorder: any = styled.div`
   top: 0;
   bottom: 0;
   left: 0;
-  right: 0;
+	right: 0;
+	z-index: 1;
 `;
 
 const commonStyle = css`
@@ -125,7 +126,7 @@ const commonStyle = css`
 `;
 
 const SelectionInputArea: any = styled.div`
-  height: ${CellHeight}px;
+  height: ${CellHeight - 1}px;
   width: ${CellWidth}px;
   position: absolute;
   left: 0;
@@ -135,11 +136,11 @@ const StyledInput: any = styled.input.attrs(props => ({
   type: "text"
 }))`
   border: 0px;
-  background: white;
-  height: calc(100% - 1px);
-  width: calc(100% - 1px);
+  background: #eee;
+  height: 100%;
+	width: calc(100% - 1px);
   margin: 0;
-  line-height: 20px;
+  line-height: ${CellHeight - 1}px;
   padding: 0 1px;
   outline: none;
   box-sizing: border-box;
