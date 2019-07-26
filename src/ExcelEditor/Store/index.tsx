@@ -6,7 +6,7 @@ import React, {
   PropsWithChildren
 } from "react";
 
-import Plugins, { PLUGIN_TYPE, PLUGIN_ACTION } from "../ExcelEditor/Plugin";
+import Plugins, { PLUGIN_TYPE, PLUGIN_ACTION } from "../Plugin";
 
 export enum ActionType {
   Update = "update",

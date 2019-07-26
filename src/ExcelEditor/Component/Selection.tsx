@@ -8,7 +8,7 @@ import styled, { css } from "styled-components";
 import { CellWidth, CellHeight } from "../Constants";
 import { ISelectionProps } from "../Common";
 import { trim } from "../../common/utils";
-import useStore from "../../store";
+import useStore from "../Store";
 
 export type ISelection = [number, number, number, number];
 

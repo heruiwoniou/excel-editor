@@ -11,7 +11,7 @@ import {
   IPluginProps
 } from "../Component/Toolbar";
 import { PLUGIN_TYPE } from "../Plugin";
-import { IState, IAction, IData } from "../../store";
+import { IState, IAction, IData } from "../Store";
 
 const getDisable = ({ isInputMode }: IPluginProps) => {
   return isInputMode;

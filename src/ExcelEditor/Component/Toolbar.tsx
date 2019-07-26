@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import cls from "classnames";
 import { ToolBarCellWidth, ToolBarHeight } from "../Constants";
 import Plugins, { PLUGIN_TYPE, PLUGIN_ACTION } from "../Plugin";
-import useStore, { ActionType } from "../../store";
+import useStore, { ActionType } from "../Store";
 
 export interface IToolbarProps {
   isInputMode: boolean;

@@ -7,10 +7,10 @@ import {
   IconsImage,
   IPluginProps
 } from "../Component/Toolbar";
-import { IState, IAction } from "../../store";
+import { IState, IAction } from "../Store";
 import { PLUGIN_TYPE } from ".";
 import Modal from "../Component/Modal";
-import useStore from "../../store";
+import useStore from "../Store";
 
 const getDisable = ({ isInputMode }: IPluginProps) => {
   return isInputMode;

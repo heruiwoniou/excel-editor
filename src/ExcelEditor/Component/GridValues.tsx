@@ -6,7 +6,7 @@ import {
   CellHeight,
   CellWidth
 } from "../Constants";
-import useStore from "../../store";
+import useStore from "../Store";
 
 interface IGridValuesProps {
   pageRowIndex: number;
