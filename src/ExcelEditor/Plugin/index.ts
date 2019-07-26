@@ -1,6 +1,7 @@
 import {
   default as PluginFunction,
-  pluginaction as FunctionAction
+  pluginaction as FunctionAction,
+  IStateBase as IFuntionStateBase
 } from "./Function";
 import {
   default as PluginColSort,
@@ -16,6 +17,8 @@ export enum PLUGIN_TYPE {
   COL_SORT = "colsort",
   ROW_SORT = "rowsort"
 }
+
+export type IPluginState = IFuntionStateBase;
 
 export type PLUGIN_ACTION =
   | FunctionAction

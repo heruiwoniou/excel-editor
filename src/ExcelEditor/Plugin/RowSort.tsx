@@ -13,15 +13,11 @@ import {
 import { PLUGIN_TYPE } from "../Plugin";
 import { IState, IAction, IData } from "../Store";
 
-const getDisable = ({ isInputMode }: IPluginProps) => {
-  return isInputMode;
-};
-
 const state = {};
 
 export type pluginaction = "ROW_SORT_DEFAULT_ACTION" | "ROW_SORT_DEFAULT_ACTION_DESC"
 
-const action = {
+const actions = {
   ROW_SORT_DEFAULT_ACTION: "ROW_SORT_DEFAULT_ACTION",
   ROW_SORT_DEFAULT_ACTION_DESC: "ROW_SORT_DEFAULT_ACTION_DESC"
 };
@@ -53,7 +49,7 @@ const reducer = (
       value && rowarr.push(value);
     }
     rowarr = _.sortBy(rowarr, ['value']);
-    if (pluginAction === action.ROW_SORT_DEFAULT_ACTION_DESC) {
+    if (pluginAction === actions.ROW_SORT_DEFAULT_ACTION_DESC) {
       rowarr.reverse();
     }
     arr.push(rowarr);
@@ -77,6 +73,10 @@ const reducer = (
   };
 };
 
+const getDisable = ({ isInputMode, selection }: IPluginProps) => {
+  return isInputMode || selection![0] === -1;
+};
+
 const Component: FunctionComponent<IPluginProps> = props => {
   const isDisable = getDisable(props);
   return (
@@ -84,7 +84,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
       <ToolbarCellContainerHeader>行</ToolbarCellContainerHeader>
       <ToolbarCell
         disable={isDisable}
-        onClick={props.action(PLUGIN_TYPE.ROW_SORT, action.ROW_SORT_DEFAULT_ACTION)}
+        onClick={props.action(PLUGIN_TYPE.ROW_SORT, actions.ROW_SORT_DEFAULT_ACTION)}
       >
         <IconsContainer size={[16, 16]}>
           <IconsImage src={pluginSortAsc} />
@@ -93,7 +93,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
       </ToolbarCell>
       <ToolbarCell
         disable={isDisable}
-        onClick={props.action(PLUGIN_TYPE.ROW_SORT, action.ROW_SORT_DEFAULT_ACTION_DESC)}
+        onClick={props.action(PLUGIN_TYPE.ROW_SORT, actions.ROW_SORT_DEFAULT_ACTION_DESC)}
       >
         <IconsContainer size={[16, 16]}>
           <IconsImage src={pluginSortDesc} />
@@ -108,5 +108,5 @@ export default {
   Component,
   state,
   reducer,
-  action
+  actions
 };

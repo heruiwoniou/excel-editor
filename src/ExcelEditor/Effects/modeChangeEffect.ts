@@ -1,9 +1,15 @@
 import { useEffect, RefObject } from "react";
+import useStore from "../Store";
 
 const useModeChangeEffect = (
   ref: RefObject<HTMLElement>,
   setInputMode: (mode: boolean) => void
 ) => {
+  const [
+    {
+      settings: { disablekeyboardMonitoring }
+    }
+  ] = useStore();
   useEffect(() => {
     let el = ref.current;
 
@@ -18,11 +24,12 @@ const useModeChangeEffect = (
     let handler = (e: KeyboardEvent) => {
       let keyCode = e.keyCode;
       if (
-        (keyCode >= 48 && keyCode <= 57) || // 0 - 9
+        !disablekeyboardMonitoring &&
+        ((keyCode >= 48 && keyCode <= 57) || // 0 - 9
         (keyCode >= 96 && keyCode <= 111) || // Small keyboard characters
         (keyCode >= 65 && keyCode <= 90) || // a - z
         (keyCode >= 186 && keyCode <= 192) || // punctuation
-        (keyCode >= 186 && keyCode <= 222)    // punctuation
+          (keyCode >= 186 && keyCode <= 222)) // punctuation
       ) {
         setInputMode(true);
       }
@@ -31,7 +38,7 @@ const useModeChangeEffect = (
     return () => {
       document.removeEventListener("keydown", handler);
     };
-  }, [setInputMode]);
+  }, [setInputMode, disablekeyboardMonitoring]);
 };
 
 export default useModeChangeEffect;

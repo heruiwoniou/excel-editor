@@ -13,15 +13,13 @@ import {
 import { PLUGIN_TYPE } from "../Plugin";
 import { IState, IAction, IData } from "../Store";
 
-const getDisable = ({ isInputMode }: IPluginProps) => {
-  return isInputMode;
-};
+
 
 const state = {};
 
 export type pluginaction = "COL_SORT_DEFAULT_ACTION" | "COL_SORT_DEFAULT_ACTION_DESC"
 
-const action = {
+const actions = {
   COL_SORT_DEFAULT_ACTION: "COL_SORT_DEFAULT_ACTION",
   COL_SORT_DEFAULT_ACTION_DESC: "COL_SORT_DEFAULT_ACTION_DESC"
 };
@@ -53,7 +51,7 @@ const reducer = (
       value && colarr.push(value);
     }
     colarr = _.sortBy(colarr, ["value"]);
-    if (pluginAction === action.COL_SORT_DEFAULT_ACTION_DESC) {
+    if (pluginAction === actions.COL_SORT_DEFAULT_ACTION_DESC) {
       colarr.reverse();
     }
     arr.push(colarr);
@@ -77,6 +75,10 @@ const reducer = (
   };
 };
 
+const getDisable = ({ isInputMode, selection }: IPluginProps) => {
+  return isInputMode || selection![0] === -1;
+};
+
 const Component: FunctionComponent<IPluginProps> = props => {
   const isDisable = getDisable(props);
   return (
@@ -86,7 +88,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
         disable={isDisable}
         onClick={props.action(
           PLUGIN_TYPE.COL_SORT,
-          action.COL_SORT_DEFAULT_ACTION
+          actions.COL_SORT_DEFAULT_ACTION
         )}
       >
         <IconsContainer size={[16, 16]}>
@@ -98,7 +100,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
         disable={isDisable}
         onClick={props.action(
           PLUGIN_TYPE.COL_SORT,
-          action.COL_SORT_DEFAULT_ACTION_DESC
+          actions.COL_SORT_DEFAULT_ACTION_DESC
         )}
       >
         <IconsContainer size={[16, 16]}>
@@ -114,5 +116,5 @@ export default {
   Component,
   state,
   reducer,
-  action
+  actions
 };

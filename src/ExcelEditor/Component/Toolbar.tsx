@@ -13,8 +13,7 @@ export interface IToolbarProps {
 export interface IPluginProps extends IToolbarProps {
   action: (
     pluginType: PLUGIN_TYPE,
-    pluginAction: PLUGIN_ACTION,
-    extra?: { [key: string]: any }
+    pluginAction: PLUGIN_ACTION
   ) => (e: MouseEvent) => void;
 }
 
@@ -30,13 +29,12 @@ const Toolbar: FunctionComponent<IToolbarProps> = ({
   ] = useStore();
 
   const action = useCallback(
-    (pluginType, pluginAction, extra) => (e: MouseEvent) => {
+    (pluginType, pluginAction) => (e: MouseEvent) => {
       dispatch({
         type: ActionType.PluginAction,
         payload: {
           pluginType,
           pluginAction,
-          extra,
           selection
         }
       });

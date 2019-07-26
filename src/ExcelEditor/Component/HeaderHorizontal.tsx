@@ -7,7 +7,7 @@ import {
   HeaderHorizontalSize,
   SheetCellsCount
 } from "../Constants";
-import { defaultScrollWidth } from "../../common/utils";
+import { defaultScrollWidth, toName } from "../../common/utils";
 import PlaceHolder from "./PlaceHolder";
 import HeaderCell from "./HeaderCell";
 
@@ -23,9 +23,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
   headerRef,
   pageHorizontalIndex,
   perLoadHorizontalCount,
-  rearLoadHorizontalCount,
-  selectionStart,
-  selectionEnd
+  rearLoadHorizontalCount
 }) => {
   return (
     <HeaderHorizontalContainer>
@@ -69,7 +67,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                               key={`horizontal-header-cell-${keyIndex}`}
                               className={`horizontal-header-cell-${keyIndex}`}
                               type={DirectionType.Horizontal}
-                              value={`${keyIndex}`}
+                              value={toName(keyIndex)}
                             />
                           );
                         })}
@@ -89,7 +87,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                     key={`horizontal-header-cell-${keyIndex}`}
                     className={`horizontal-header-cell-${keyIndex}`}
                     type={DirectionType.Horizontal}
-                    value={`${keyIndex}`}
+                    value={toName(keyIndex)}
                   />
                 );
               })}
@@ -113,7 +111,7 @@ const HeaderHorizontal: FunctionComponent<IHeaderHorizontalProps> = ({
                             key={`horizontal-header-cell-${keyIndex}`}
                             className={`horizontal-header-cell-${keyIndex}`}
                             type={DirectionType.Horizontal}
-                            value={`${keyIndex}`}
+                            value={toName(keyIndex)}
                           />
                         );
                       })}

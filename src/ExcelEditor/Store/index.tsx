@@ -6,7 +6,7 @@ import React, {
   PropsWithChildren
 } from "react";
 
-import Plugins, { PLUGIN_TYPE, PLUGIN_ACTION } from "../Plugin";
+import Plugins, { PLUGIN_TYPE, PLUGIN_ACTION, IPluginState } from "../Plugin";
 
 export enum ActionType {
   Update = "update",
@@ -25,13 +25,15 @@ export interface IData {
   value: string;
 }
 
-export type IState = {
+export type IStateBase = {
   data: { [key: string]: IData };
   settings: {
+    disablekeyboardMonitoring: boolean,
     plugins: string[];
   };
-  [key: string]: any;
 };
+
+export type IState = IStateBase & IPluginState;
 
 export interface IAction {
   type: ActionType;
@@ -51,6 +53,7 @@ Object.keys(Plugins).forEach(type => {
 const initialState: IState = {
   data: {},
   settings: {
+    disablekeyboardMonitoring: false,
     plugins: [PLUGIN_TYPE.FUNCTION, PLUGIN_TYPE.COL_SORT, PLUGIN_TYPE.ROW_SORT]
   },
   ...pluginState
