@@ -23,11 +23,13 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## 运行
 ```
+npm run install
 npm run start
 ```
 
 ## 打包
 ```
+npm run install
 npm run build
 ```
 
