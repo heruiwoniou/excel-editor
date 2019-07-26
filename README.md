@@ -2,6 +2,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 # 类 Excel 编辑器
 
+[演示页面](https://heruiwoniou.github.io/excel-editor/);
+
 ## 技术栈
 
 - react
@@ -33,3 +35,4 @@ npm run install
 npm run build
 ```
 
+`注意, 如果是本地build请删除package.json 下的homepage再进行打包, 项目会根据homepage设置publicPath`

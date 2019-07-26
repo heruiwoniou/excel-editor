@@ -2,6 +2,7 @@
   "name": "editor",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://heruiwoniou.github.io/excel-editor/",
   "dependencies": {
     "@babel/core": "7.4.3",
     "@svgr/webpack": "4.1.0",
