@@ -5,46 +5,46 @@
   "dependencies": {
     "@babel/core": "7.4.3",
     "@svgr/webpack": "4.1.0",
-    "@types/classnames": "^2.2.9",
+    "@types/classnames": "2.2.9",
     "@types/jest": "24.0.15",
-    "@types/lodash": "^4.14.136",
+    "@types/lodash": "4.14.136",
     "@types/node": "12.6.8",
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
-    "@types/styled-components": "^4.1.18",
-    "@types/yup": "^0.26.22",
+    "@types/styled-components": "4.1.18",
+    "@types/yup": "0.26.22",
     "@typescript-eslint/eslint-plugin": "1.6.0",
     "@typescript-eslint/parser": "1.6.0",
     "babel-eslint": "10.0.1",
-    "babel-jest": "^24.8.0",
+    "babel-jest": "24.8.0",
     "babel-loader": "8.0.5",
-    "babel-plugin-named-asset-import": "^0.3.2",
-    "babel-preset-react-app": "^9.0.0",
-    "camelcase": "^5.2.0",
+    "babel-plugin-named-asset-import": "0.3.2",
+    "babel-preset-react-app": "9.0.0",
+    "camelcase": "5.2.0",
     "case-sensitive-paths-webpack-plugin": "2.2.0",
-    "classnames": "^2.2.6",
+    "classnames": "2.2.6",
     "css-loader": "2.1.1",
     "dotenv": "6.2.0",
     "dotenv-expand": "4.2.0",
-    "eslint": "^5.16.0",
-    "eslint-config-react-app": "^4.0.1",
+    "eslint": "5.16.0",
+    "eslint-config-react-app": "4.0.1",
     "eslint-loader": "2.1.2",
     "eslint-plugin-flowtype": "2.50.1",
     "eslint-plugin-import": "2.16.0",
     "eslint-plugin-jsx-a11y": "6.2.1",
     "eslint-plugin-react": "7.12.4",
-    "eslint-plugin-react-hooks": "^1.5.0",
+    "eslint-plugin-react-hooks": "1.5.0",
     "file-loader": "3.0.1",
-    "formik": "^1.5.8",
+    "formik": "1.5.8",
     "fs-extra": "7.0.1",
     "html-webpack-plugin": "4.0.0-beta.5",
     "identity-obj-proxy": "3.0.0",
-    "is-wsl": "^1.1.0",
+    "is-wsl": "1.1.0",
     "jest": "24.7.1",
     "jest-environment-jsdom-fourteen": "0.1.0",
     "jest-resolve": "24.7.1",
     "jest-watch-typeahead": "0.3.0",
-    "lodash": "^4.17.15",
+    "lodash": "4.17.15",
     "mini-css-extract-plugin": "0.5.0",
     "optimize-css-assets-webpack-plugin": "5.0.1",
     "pnp-webpack-plugin": "1.2.1",
@@ -53,15 +53,15 @@
     "postcss-normalize": "7.0.1",
     "postcss-preset-env": "6.6.0",
     "postcss-safe-parser": "4.0.1",
-    "react": "^16.8.6",
-    "react-app-polyfill": "^1.0.1",
-    "react-dev-utils": "^9.0.1",
-    "react-dom": "^16.8.6",
+    "react": "16.8.6",
+    "react-app-polyfill": "1.0.1",
+    "react-dev-utils": "9.0.1",
+    "react-dom": "16.8.6",
     "resolve": "1.10.0",
     "sass-loader": "7.1.0",
     "semver": "6.0.0",
     "style-loader": "0.23.1",
-    "styled-components": "^4.3.2",
+    "styled-components": "4.3.2",
     "terser-webpack-plugin": "1.2.3",
     "ts-pnp": "1.1.2",
     "typescript": "3.5.3",
@@ -70,7 +70,7 @@
     "webpack-dev-server": "3.2.1",
     "webpack-manifest-plugin": "2.0.4",
     "workbox-webpack-plugin": "4.2.0",
-    "yup": "^0.27.0"
+    "yup": "0.27.0"
   },
   "scripts": {
     "start": "node scripts/start.js",
@@ -107,18 +107,18 @@
     ],
     "testEnvironment": "jest-environment-jsdom-fourteen",
     "transform": {
-      "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
-      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
-      "^(?!.*\\.(js|jsx|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+      ".+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
+      ".+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+      "(?!.*\\.(js|jsx|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
     },
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",
-      "^.+\\.module\\.(css|sass|scss)$"
+      ".+\\.module\\.(css|sass|scss)$"
     ],
     "modulePaths": [],
     "moduleNameMapper": {
-      "^react-native$": "react-native-web",
-      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
+      "react-native$": "react-native-web",
+      ".+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
     },
     "moduleFileExtensions": [
       "web.js",
@@ -146,6 +146,6 @@
     ]
   },
   "devDependencies": {
-    "babel-plugin-styled-components": "^1.10.6"
+    "babel-plugin-styled-components": "1.10.6"
   }
 }
