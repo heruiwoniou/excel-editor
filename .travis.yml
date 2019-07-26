@@ -6,7 +6,7 @@ script:
   - npm run build
 
 after_script:
-  - cd ./pack
+  - cd ./build
   - git init
   - git config user.name "${U_NAME}"
   - git config user.email "${U_EMAIL}"
