@@ -1,6 +1,11 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 # 类 Excel 编辑器
+<p style="text-align:center;">
+  <a href="https://travis-ci.org/heruiwoniou/excel-editor">
+    <img src="https://travis-ci.org/heruiwoniou/excel-editor.svg?branch=master" alt="Build Status" />
+  </a>
+</p>
 
 [演示页面](https://heruiwoniou.github.io/excel-editor/)
 
