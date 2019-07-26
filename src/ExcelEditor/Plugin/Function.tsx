@@ -182,7 +182,6 @@ const Component: FunctionComponent<IPluginProps> = props => {
       }
     });
   }, [dispath]);
-  console.log(state.functionstate!.initialValues);
   return (
     <>
       <ToolbarCell
