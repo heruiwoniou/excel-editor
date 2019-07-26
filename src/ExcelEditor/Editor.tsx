@@ -44,9 +44,10 @@ const Editor: React.FC = (...rest: any) => {
   );
 
   const updatePageVerticalDataHander = useCallback(
-    (pageIndex: number, cache: number) =>
+    (pageIndex: number, cacheX: number, cacheY: number) =>
       ReactDom.unstable_batchedUpdates(() => {
-        setVerticalScrollCache(cache);
+        setHorizontalScrollCache(cacheX);
+        setVerticalScrollCache(cacheY);
         updatePageVerticalIndex(pageIndex);
       }),
     []
@@ -72,9 +73,10 @@ const Editor: React.FC = (...rest: any) => {
   >(RearLoadCountDefault * coefficientHorizontal);
 
   const updatePageHorizontalDataHander = useCallback(
-    (pageIndex: number, cache: number) =>
+    (pageIndex: number, cacheX: number, cacheY: number) =>
       ReactDom.unstable_batchedUpdates(() => {
-        setHorizontalScrollCache(cache);
+        setHorizontalScrollCache(cacheX);
+        setVerticalScrollCache(cacheY);
         updatePageHorizontalIndex(pageIndex);
       }),
     []

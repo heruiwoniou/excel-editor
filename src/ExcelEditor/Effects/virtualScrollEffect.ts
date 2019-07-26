@@ -9,8 +9,8 @@ const useVirtualScrollEffect = (
   horizontalScrollCache: number,
   pageHorizontalIndex: number,
   pageVerticalIndex: number,
-  updatePageHorizontalDataHander: (pageIndex: number, cache: number) => void,
-  updatePageVerticalDataHander: (pageIndex: number, cache: number) => void
+  updatePageHorizontalDataHander: (pageIndex: number, cacheX: number, cacheY: number) => void,
+  updatePageVerticalDataHander: (pageIndex: number, cacheX: number, cacheY: number) => void
 ) => {
   useEffect(() => {
     let el = ref.current;
@@ -43,17 +43,21 @@ const useVirtualScrollEffect = (
 
         //Vertical
         scrollTop = container.scrollTop;
+        scrollLeft = container.scrollLeft;
+
         if (verticalHeaderRef.current) {
           verticalHeaderRef.current.scrollTop = scrollTop;
         }
         currentPageVerticalIndex = Math.floor(scrollTop / PageVerticalSize);
         if (currentPageVerticalIndex !== pageVerticalIndex) {
-          container.removeEventListener("scroll", handler);
-          updatePageVerticalDataHander(currentPageVerticalIndex, scrollTop);
+          updatePageVerticalDataHander(
+            currentPageVerticalIndex,
+            scrollLeft,
+            scrollTop
+          );
         }
 
         // Horizontal
-        scrollLeft = container.scrollLeft;
         if (horizontalHeaderRef.current) {
           horizontalHeaderRef.current.scrollLeft = scrollLeft;
         }
@@ -63,7 +67,8 @@ const useVirtualScrollEffect = (
         if (currentPageHorizontalIndex !== pageHorizontalIndex) {
           updatePageHorizontalDataHander(
             currentPageHorizontalIndex,
-            scrollLeft
+            scrollLeft,
+            scrollTop
           );
         }
       }
@@ -75,9 +80,9 @@ const useVirtualScrollEffect = (
       el && el.removeEventListener("scroll", handler);
     };
   }, [
-		ref,
-		horizontalHeaderRef,
-		verticalHeaderRef,
+    ref,
+    horizontalHeaderRef,
+    verticalHeaderRef,
     verticalScrollCache,
     horizontalScrollCache,
     pageHorizontalIndex,
