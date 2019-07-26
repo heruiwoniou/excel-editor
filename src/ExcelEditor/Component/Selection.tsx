@@ -50,6 +50,7 @@ const Selection: FunctionComponent<ISelectionProps & ISelectionRefProps> = ({
   useEffect(() => {
     if (isInputMode && ref.current) {
       ref.current.focus();
+      ref.current.select();
     }
   }, [isInputMode]);
 

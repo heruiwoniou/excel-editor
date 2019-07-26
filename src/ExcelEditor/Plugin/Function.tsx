@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useRef, useMemo } from "react";
+import React, { FunctionComponent, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Formik, FormikProps, FormikValues, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -10,23 +10,34 @@ import {
   IconsImage,
   IPluginProps
 } from "../Component/Toolbar";
-import useStore, { IState, IAction, ActionType } from "../Store";
+import useStore, {
+  IState,
+  IAction,
+  ActionType,
+  DataType,
+  IFunctionDataValue
+} from "../Store";
 import { PLUGIN_TYPE } from ".";
 import Modal from "../Component/Modal";
 import { ISelection } from "../Component/Selection";
+import { toIndex } from "../../common/utils";
 
 export type IStateBase = {
   functionstate?: {
     selection?: ISelection;
+    initialValues: any,
     openDialog?: boolean;
   };
 };
+
+const initialValues = { type: "sum", begin: "", end: "" };
 
 const emptySelection: ISelection = [-1, -1, -1, -1];
 
 const state = {
   functionstate: {
     openDialog: false,
+    initialValues: initialValues,
     selection: emptySelection
   }
 };
@@ -35,19 +46,49 @@ export type pluginaction = "FUNCTION_DEFAULT_ACTION";
 
 const actions = {
   FUNCTION_DEFAULT_ACTION: "FUNCTION_DEFAULT_ACTION",
-  FUNCTION_CLOSE_MODAL_ACTION: "FUNCTION_CLOSE_MODAL_ACTION"
+  FUNCTION_CLOSE_MODAL_ACTION: "FUNCTION_CLOSE_MODAL_ACTION",
+  FUNCTION_SAVE_ACTION: "FUNCTION_SAVE_ACTION"
+};
+const regForCellName = /^([A-Z]+)([1-9]+[0-9]*)$/;
+const convertData = (functionDataValue: IFunctionDataValue) => {
+  let params;
+  switch (functionDataValue.type) {
+    case "sum":
+      params = functionDataValue.params.map((area: string[]) =>
+        area.map(point => {
+          let matches = point.match(regForCellName);
+          if (matches) {
+            return [toIndex(matches[1]), ~~matches[2]];
+          } else {
+            return null;
+          }
+        })
+      );
+  }
+
+  return {
+    type: functionDataValue.type,
+    params,
+    original: functionDataValue.original
+  };
 };
 
 const reducer = (state: IState, { payload }: IAction) => {
   switch (payload.pluginAction) {
     case actions.FUNCTION_DEFAULT_ACTION:
+      const cellInitialValues = payload.initialValues || initialValues;
+
       return {
         ...state,
         settings: {
           ...state.settings,
           disablekeyboardMonitoring: true
         },
-        functionstate: { openDialog: true, selection: payload.selection }
+        functionstate: {
+          openDialog: true,
+          initialValues: cellInitialValues,
+          selection: payload.selection
+        }
       };
     case actions.FUNCTION_CLOSE_MODAL_ACTION:
       return {
@@ -56,7 +97,39 @@ const reducer = (state: IState, { payload }: IAction) => {
           ...state.settings,
           disablekeyboardMonitoring: false
         },
-        functionstate: { openDialog: false, selection: emptySelection }
+        functionstate: {
+          openDialog: false,
+          initialValues,
+          selection: emptySelection
+        }
+      };
+    case actions.FUNCTION_SAVE_ACTION:
+      const { value } = payload;
+      const [startRowIndex, startCellIndex] = state.functionstate!
+        .selection as ISelection;
+
+      let extendData = {
+        [`${startCellIndex + 1}:${startRowIndex + 1}`]: {
+          type: DataType.Function,
+          value: convertData(value)
+        }
+      };
+
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          disablekeyboardMonitoring: false
+        },
+        functionstate: {
+          openDialog: false,
+          initialValues,
+          selection: emptySelection
+        },
+        data: {
+          ...state.data,
+          ...extendData
+        }
       };
   }
   return state;
@@ -74,8 +147,6 @@ const schema = Yup.object().shape({
     .matches(/^[A-Z]+[1-9]+[0-9]*$/, "格式错误 (A1,B2, AA1, ...)")
     .required("必填项")
 });
-
-const initialValues = { type: "sum", begin: "", end: "" };
 
 const Component: FunctionComponent<IPluginProps> = props => {
   const isDisable = getDisable(props);
@@ -97,9 +168,21 @@ const Component: FunctionComponent<IPluginProps> = props => {
       formRef.current.submitForm();
     }
   }, []);
-  const onSumbit = useCallback((values, actions) => {
-    debugger;
-  }, []);
+  const onSumbit = useCallback(values => {
+    dispath({
+      type: ActionType.PluginAction,
+      payload: {
+        pluginType: PLUGIN_TYPE.FUNCTION,
+        pluginAction: actions.FUNCTION_SAVE_ACTION,
+        value: {
+          type: values.type,
+          params: [[values.begin, values.end]],
+          original:values
+        }
+      }
+    });
+  }, [dispath]);
+  console.log(state.functionstate!.initialValues);
   return (
     <>
       <ToolbarCell
@@ -116,7 +199,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
       </ToolbarCell>
       {openDialog && (
         <Modal
-          title="添加函数"
+          title="函数"
           height={300}
           width={600}
           onClose={onClose}
@@ -125,7 +208,7 @@ const Component: FunctionComponent<IPluginProps> = props => {
           <ModalContent>
             <Formik
               ref={formRef}
-              initialValues={initialValues}
+              initialValues={state.functionstate!.initialValues}
               onSubmit={onSumbit}
               validationSchema={schema}
             >

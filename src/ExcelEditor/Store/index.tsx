@@ -19,16 +19,20 @@ export enum DataType {
   String,
   Function
 }
-
+export interface IFunctionDataValue {
+  type: string;
+  params: any;
+  original?: any
+}
 export interface IData {
   type: DataType;
-  value: string;
+  value: string | IFunctionDataValue;
 }
 
 export type IStateBase = {
   data: { [key: string]: IData };
   settings: {
-    disablekeyboardMonitoring: boolean,
+    disablekeyboardMonitoring: boolean;
     plugins: string[];
   };
 };
@@ -99,8 +103,6 @@ const DataContext = React.createContext<[IState, Dispatch<IAction>]>([
 export const DataProvider: FunctionComponent<PropsWithChildren<{}>> = ({
   children
 }) => {
-  let pluginState = {};
-
   const contextValue = useReducer<React.Reducer<IState, IAction>>(
     reducer,
     initialState

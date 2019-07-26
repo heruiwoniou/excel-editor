@@ -16,16 +16,17 @@ import HorizontalHeader from "./Component/HeaderHorizontal";
 import VerticalHeader from "./Component/HeaderVertical";
 import Selection, { ISelection } from "./Component/Selection";
 import Toolbar from "./Component/Toolbar";
-import useStore, { ActionType, DataType } from "./Store";
+import useStore, { ActionType, DataType, IFunctionDataValue } from "./Store";
 import {
   useVirtualScrollEffect,
   useSelectionEffect,
   useModeChangeEffect,
   useResizeEffect
 } from "./Effects";
+import Plugins, { PLUGIN_TYPE } from "./Plugin";
 
 const Editor: React.FC = (...rest: any) => {
-  const [, dispatch] = useStore();
+  const [state, dispatch] = useStore();
   // Selection
   const [selection, setSelection] = useState<ISelection>([-1, -1, -1, -1]);
   const [isInputMode, setInputMode] = useState<boolean>(false);
@@ -144,6 +145,34 @@ const Editor: React.FC = (...rest: any) => {
     [dispatch]
   );
 
+  const enableInputMode = useCallback(() => {
+    let cellNumber = startCellIndex + 1;
+    let rowNumber = startRowIndex + 1;
+    let data = state.data[`${cellNumber}:${rowNumber}`];
+    if (data && data.type === DataType.Function) {
+      dispatch({
+        type: ActionType.PluginAction,
+        payload: {
+          pluginType: PLUGIN_TYPE.FUNCTION,
+          pluginAction:
+            Plugins[PLUGIN_TYPE.FUNCTION].actions.FUNCTION_DEFAULT_ACTION,
+          selection: [startRowIndex, startCellIndex, endRowIndex, endCellIndex],
+          initialValues: (data.value as IFunctionDataValue).original
+        }
+      });
+    } else {
+      setInputMode(true);
+    }
+  }, [
+    setInputMode,
+    dispatch,
+    state.data,
+    startRowIndex,
+    startCellIndex,
+    endRowIndex,
+    endCellIndex
+  ]);
+
   const deleteSelection = useCallback(() => {
     let keys = [];
     for (let row = startRowIndex; row <= endRowIndex; row++) {
@@ -174,7 +203,7 @@ const Editor: React.FC = (...rest: any) => {
 
   useSelectionEffect(ref, selectionRef, setSelection, deleteSelection);
 
-  useModeChangeEffect(ref, setInputMode);
+  useModeChangeEffect(ref, enableInputMode);
 
   useResizeEffect(ref, updateLoadHorizontalCount, updateLoadVerticalCount);
 

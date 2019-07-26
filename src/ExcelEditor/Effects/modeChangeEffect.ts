@@ -3,7 +3,7 @@ import useStore from "../Store";
 
 const useModeChangeEffect = (
   ref: RefObject<HTMLElement>,
-  setInputMode: (mode: boolean) => void
+  enableInputMode: () => void
 ) => {
   const [
     {
@@ -13,12 +13,12 @@ const useModeChangeEffect = (
   useEffect(() => {
     let el = ref.current;
 
-    let dblClickHandler = (e: MouseEvent) => setInputMode(true);
+    let dblClickHandler = (e: MouseEvent) => enableInputMode();
     el && el.addEventListener("dblclick", dblClickHandler);
     return () => {
       el && el.removeEventListener("dblclick", dblClickHandler);
     };
-  }, [ref, setInputMode]);
+  }, [ref, enableInputMode]);
 
   useEffect(() => {
     let handler = (e: KeyboardEvent) => {
@@ -31,14 +31,14 @@ const useModeChangeEffect = (
         (keyCode >= 186 && keyCode <= 192) || // punctuation
           (keyCode >= 186 && keyCode <= 222)) // punctuation
       ) {
-        setInputMode(true);
+        enableInputMode();
       }
     };
     document.addEventListener("keydown", handler);
     return () => {
       document.removeEventListener("keydown", handler);
     };
-  }, [setInputMode, disablekeyboardMonitoring]);
+  }, [enableInputMode, disablekeyboardMonitoring]);
 };
 
 export default useModeChangeEffect;
