@@ -2,7 +2,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 # 类 Excel 编辑器
 
-[演示页面](https://heruiwoniou.github.io/excel-editor/);
+[演示页面](https://heruiwoniou.github.io/excel-editor/)
 
 ## 技术栈
 
