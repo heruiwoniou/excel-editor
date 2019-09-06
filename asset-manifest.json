@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.js": "/excel-editor/static/js/main.ddc9dac9.chunk.js",
+    "main.js.map": "/excel-editor/static/js/main.ddc9dac9.chunk.js.map",
+    "runtime~main.js": "/excel-editor/static/js/runtime~main.85ae8940.js",
+    "runtime~main.js.map": "/excel-editor/static/js/runtime~main.85ae8940.js.map",
+    "static/js/2.d63bf6d0.chunk.js": "/excel-editor/static/js/2.d63bf6d0.chunk.js",
+    "static/js/2.d63bf6d0.chunk.js.map": "/excel-editor/static/js/2.d63bf6d0.chunk.js.map",
+    "index.html": "/excel-editor/index.html",
+    "precache-manifest.1e68b673f8c3f10a27fe7d541776ac44.js": "/excel-editor/precache-manifest.1e68b673f8c3f10a27fe7d541776ac44.js",
+    "service-worker.js": "/excel-editor/service-worker.js",
+    "static/media/close.svg": "/excel-editor/static/media/close.1257f21e.svg",
+    "static/media/plugin-function.svg": "/excel-editor/static/media/plugin-function.a701f2ea.svg",
+    "static/media/plugin-sort-asc.svg": "/excel-editor/static/media/plugin-sort-asc.881aaecd.svg",
+    "static/media/plugin-sort-desc.svg": "/excel-editor/static/media/plugin-sort-desc.f0606467.svg"
+  }
+}
